@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECHO — Patient Communication Tool | When Words Aren't Possible</title>
+  <meta name="description" content="ECHO helps patients who can't speak communicate with caregivers. One-tap buttons, body map, voice recognition. Try free today.">
+  <meta name="keywords" content="patient communication, caregiver app, non-verbal, speech aid, stroke, parkinson, surgery recovery">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="ECHO — Patient Communication Tool">
+  <meta property="og:description" content="When Words Aren't Possible, ECHO Speaks. Give your loved one a voice.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://speakecho.co">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ECHO — Patient Communication Tool">
+  <meta name="twitter:description" content="When Words Aren't Possible, ECHO Speaks.">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💙</text></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cyan: #06b6d4;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e1b4b 100%);
+      color: white;
+      line-height: 1.6;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      padding: 1rem 2rem;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--slate-300);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      color: white;
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(6, 182, 212, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 20%;
+      right: 10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 20%;
+      left: 10%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: pulse 4s ease-in-out infinite 2s;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.875rem;
+      color: var(--cyan);
+      margin-bottom: 2rem;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--cyan);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--cyan), var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: var(--cyan);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-tagline {
+      font-size: 1.25rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    .hero-description {
+      font-size: 1.125rem;
+      color: var(--slate-400);
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+    }
+
+    .hero-buttons .btn {
+      padding: 1rem 2rem;
+      font-size: 1.125rem;
+    }
+
+    .hero-features {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .hero-features span {
+      transition: transform 0.3s;
+      cursor: default;
+    }
+
+    .hero-features span:hover {
+      transform: scale(1.2);
+    }
+
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      color: var(--slate-400);
+      font-size: 0.875rem;
+    }
+
+    .trust-badges span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .trust-badges .check {
+      color: #22c55e;
+    }
+
+    /* Sections */
+    section {
+      padding: 6rem 2rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      color: var(--cyan);
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+      color: var(--slate-400);
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Story Section */
+    .story-section {
+      background: linear-gradient(180deg, transparent 0%, rgba(6, 182, 212, 0.05) 50%, transparent 100%);
+    }
+
+    .story-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(30, 27, 75, 0.8));
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 800px;
+      margin: 0 auto;
+      backdrop-filter: blur(10px);
+    }
+
+    .story-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 2rem;
+      box-shadow: 0 4px 30px rgba(6, 182, 212, 0.3);
+    }
+
+    .story-text {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .story-text p {
+      margin-bottom: 1.5rem;
+    }
+
+    .story-highlight {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .story-quote {
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      color: var(--cyan);
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    .story-author {
+      text-align: center;
+      margin-top: 2rem;
+      color: var(--slate-400);
+      font-style: italic;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(30, 41, 59, 0.3));
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(6, 182, 212, 0.5);
+      box-shadow: 0 10px 40px rgba(6, 182, 212, 0.1);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card p {
+      color: var(--slate-400);
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* Who It Helps */
+    .use-cases-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .use-case-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      transition: all 0.3s;
+    }
+
+    .use-case-card:hover {
+      border-color: rgba(6, 182, 212, 0.3);
+    }
+
+    .use-case-icon {
+      font-size: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .use-case-card h3 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .use-case-card p {
+      color: var(--slate-400);
+      font-size: 0.875rem;
+    }
+
+    /* How It Works */
+    .steps-container {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 3rem;
+    }
+
+    .step {
+      text-align: center;
+      max-width: 300px;
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 auto 1rem;
+    }
+
+    .step h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step p {
+      color: var(--slate-400);
+      font-size: 0.9375rem;
+    }
+
+    /* Pricing */
+    .pricing-section {
+      background: linear-gradient(180deg, transparent 0%, rgba(139, 92, 246, 0.05) 50%, transparent 100%);
+    }
+
+    .pricing-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(30, 27, 75, 0.6));
+      border: 2px solid rgba(6, 182, 212, 0.3);
+      border-radius: 24px;
+      padding: 3rem;
+      max-width: 450px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .pricing-label {
+      color: var(--cyan);
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .pricing-amount {
+      font-size: 4rem;
+      font-weight: 900;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-period {
+      color: var(--slate-400);
+      font-size: 1.25rem;
+    }
+
+    .pricing-note {
+      color: var(--slate-400);
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features {
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+    }
+
+    .pricing-features li:last-child {
+      border-bottom: none;
+    }
+
+    .pricing-features .check {
+      color: var(--cyan);
+      font-size: 1.25rem;
+    }
+
+    .pricing-card .btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.125rem;
+    }
+
+    .pricing-footer {
+      margin-top: 1.5rem;
+      color: var(--slate-400);
+      font-size: 0.875rem;
+    }
+
+    .pricing-footer a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    .pricing-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .testimonial-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(30, 41, 59, 0.3));
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 20px;
+      padding: 2rem;
+    }
+
+    .testimonial-quote {
+      color: var(--cyan);
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    .testimonial-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .testimonial-author {
+      font-weight: 700;
+    }
+
+    .testimonial-role {
+      color: var(--slate-400);
+      font-size: 0.875rem;
+    }
+
+    /* FAQ */
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: 16px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      width: 100%;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.125rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .faq-question:hover {
+      background: rgba(6, 182, 212, 0.05);
+    }
+
+    .faq-icon {
+      font-size: 1.5rem;
+      color: var(--cyan);
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 500px;
+    }
+
+    .faq-answer-content {
+      padding: 0 1.5rem 1.5rem;
+      color: var(--slate-400);
+      line-height: 1.7;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      text-align: center;
+    }
+
+    .cta-section h2 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-section .btn {
+      background: white;
+      color: var(--blue);
+      padding: 1rem 2.5rem;
+      font-size: 1.125rem;
+    }
+
+    .cta-section .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Footer */
+    footer {
+      background: rgba(15, 23, 42, 0.9);
+      padding: 4rem 2rem 2rem;
+      border-top: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-brand {
+      max-width: 300px;
+    }
+
+    .footer-brand .logo {
+      margin-bottom: 1rem;
+    }
+
+    .footer-brand p {
+      color: var(--slate-400);
+      font-size: 0.875rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-column h4 {
+      font-size: 0.875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-column a {
+      color: var(--slate-400);
+      text-decoration: none;
+      font-size: 0.9375rem;
+      transition: color 0.3s;
+    }
+
+    .footer-column a:hover {
+      color: var(--cyan);
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(51, 65, 85, 0.3);
+      text-align: center;
+      color: var(--slate-400);
+      font-size: 0.875rem;
+    }
+
+    .footer-bottom p {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-heart {
+      color: #ef4444;
+    }
+
+    /* Mobile Menu */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-menu-btn {
+        display: block;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .hero-features {
+        gap: 1rem;
+        font-size: 2rem;
+      }
+
+      .trust-badges {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .story-card {
+        padding: 2rem;
+      }
+
+      .pricing-card {
+        padding: 2rem;
+      }
+
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .footer-brand {
+        max-width: 100%;
+      }
+
+      .footer-links {
+        justify-content: center;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* Medical Disclaimer Banner */
+    .disclaimer-banner {
+      background: rgba(239, 68, 68, 0.1);
+      border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 0.75rem 2rem;
+      text-align: center;
+      color: #fca5a5;
+      font-size: 0.875rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 101;
+    }
+
+    .disclaimer-banner + nav {
+      top: 40px;
+    }
+
+    .disclaimer-banner + nav + .hero {
+      padding-top: 10rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="#" class="logo">💙 ECHO</a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#story">Our Story</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://buy.stripe.com/aFafZgfY31tueKzehX00000" class="btn btn-primary">Try Free</a>
+      </div>
+      <button class="mobile-menu-btn">☰</button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        Now Available • Start Free Today
+      </div>
+
+      <h1>ECHO</h1>
+      <p class="hero-subtitle">Patient Communication Tool</p>
+      <p class="hero-tagline">"When Words Aren't Possible, ECHO Speaks"</p>
+
+      <p class="hero-description">
+        Help your loved ones communicate pain, needs, and feelings when they can't speak.
+        Perfect for post-surgery patients, stroke survivors, Parkinson's patients, and children.
+      </p>
+
+      <div class="hero-buttons">
+        <a href="https://buy.stripe.com/aFafZgfY31tueKzehX00000" class="btn btn-primary">Start 7-Day Free Trial</a>
+        <a href="/app" class="btn btn-secondary">Open ECHO App</a>
+      </div>
+
+      <div class="hero-features">
+        <span>🧍</span>
+        <span>💊</span>
+        <span>👥</span>
+        <span>📊</span>
+        <span>🦥</span>
+        <span>🌐</span>
+      </div>
+
+      <div class="trust-badges">
+        <span><span class="check">✓</span> 7-day free trial</span>
+        <span><span class="check">✓</span> Works on any device</span>
+        <span><span class="check">✓</span> English & Spanish</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Story Section -->
+  <section class="story-section" id="story">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Our Story</p>
+        <h2 class="section-title">Why I Built ECHO</h2>
+      </div>
+
+      <div class="story-card">
+        <div class="story-icon">💙</div>
+
+        <div class="story-text">
+          <p>
+            <span class="story-highlight">My mom had heart surgery.</span> When medication was administered through her neck, the pressure was so intense she couldn't show her pain or express what she was feeling. I watched her struggle, unable to help.
+          </p>
+
+          <p>
+            <span class="story-highlight">My dad had Parkinson's disease.</span> His mind was perfect—brilliant, sharp, full of thoughts—but he couldn't speak. He was trapped inside his own body. Those were very hard times for our entire family.
+          </p>
+
+          <div class="story-quote">
+            My dad is no longer with us. I created ECHO for them—so other families can give their loved ones the best quality of life they deserve, in their most difficult moments.
+          </div>
+        </div>
+
+        <p class="story-author">— Mirza, Founder of ECHO</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Features</p>
+        <h2 class="section-title">Everything Your Loved One Needs</h2>
+        <p class="section-subtitle">Designed with care for patients who can't speak, and the families who love them.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🧍</div>
+          <h3>Interactive Body Map</h3>
+          <p>Tap exactly where it hurts—external body AND internal organs. Rate pain 1-10 with color-coded intensity and specify the type of sensation.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚨</div>
+          <h3>One-Tap Alerts</h3>
+          <p>12 large, fingertip-sized buttons with sound feedback. Emergency, pain, thirsty, hungry, bathroom, and more—no typing needed.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎤</div>
+          <h3>Voice Recognition</h3>
+          <p>Hands-free communication. Simply say "pain," "help," or "thirsty" and ECHO responds. Perfect for patients with limited mobility.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💊</div>
+          <h3>Medication Tracking</h3>
+          <p>Log medications with dose, method (oral, IV, injection, topical), and who administered. Complete history with timestamps.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>Visitor Log</h3>
+          <p>Track who enters and exits the room. Complete accountability with timestamps, visitor types, and roles for better care coordination.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📷</div>
+          <h3>Document Capture</h3>
+          <p>Take photos of medical documents, prescriptions, or anything important. Store and access them right within the app.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Caregiver Dashboard</h3>
+          <p>Real-time patient status (Stable, Needs Attention, Critical), activity log, medication history, and visitor tracking at a glance.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🖨️</div>
+          <h3>Print & Export</h3>
+          <p>Download complete reports as JSON or print professional summaries for doctor appointments and shift changes.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🦥</div>
+          <h3>Kids Mode</h3>
+          <p>Fun colors, friendly sloth mascot, child-appropriate icons. Makes communication less scary for children in hospital settings.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🔊</div>
+          <h3>Full Accessibility</h3>
+          <p>Sound feedback beeps and voice announcements for blind/low-vision users. Every action speaks so no one is left out.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>Bilingual Support</h3>
+          <p>Complete English and Spanish support. One-tap language switching for diverse families and care teams.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🛋️</div>
+          <h3>Comfort Controls</h3>
+          <p>Bed adjustments, bathroom assistance, sleep preferences, lighting controls—all the everyday needs at their fingertips.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who It Helps -->
+  <section id="who-it-helps" style="background: linear-gradient(180deg, transparent 0%, rgba(6, 182, 212, 0.05) 50%, transparent 100%);">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Use Cases</p>
+        <h2 class="section-title">Who ECHO Helps</h2>
+        <p class="section-subtitle">Giving a voice to those who need it most.</p>
+      </div>
+
+      <div class="use-cases-grid">
+        <div class="use-case-card">
+          <div class="use-case-icon">🏥</div>
+          <div>
+            <h3>Post-Surgery Patients</h3>
+            <p>Can't speak due to intubation, anesthesia effects, breathing tubes, or severe post-operative pain. ECHO lets them communicate while recovering.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🧠</div>
+          <div>
+            <h3>Stroke Survivors</h3>
+            <p>Aphasia and speech difficulties affect many stroke patients. ECHO bridges the gap when words won't come.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🤲</div>
+          <div>
+            <h3>Parkinson's & ALS</h3>
+            <p>Brilliant minds trapped in bodies that won't cooperate. ECHO gives them back their voice and dignity.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">👶</div>
+          <div>
+            <h3>Children</h3>
+            <p>Kids who can't articulate what hurts or what they need. Kids Mode makes it fun and less scary.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">👴</div>
+          <div>
+            <h3>Elderly Care</h3>
+            <p>Dementia, hearing loss, and cognitive challenges make communication difficult. ECHO simplifies it.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🌍</div>
+          <div>
+            <h3>Non-English Speakers</h3>
+            <p>Full Spanish support helps bridge language gaps in healthcare settings.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">👁️</div>
+          <div>
+            <h3>Blind & Low Vision</h3>
+            <p>Complete audio accessibility with voice announcements for every action and button.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🏠</div>
+          <div>
+            <h3>Home Care</h3>
+            <p>Families caring for loved ones at home can track everything and share reports with healthcare providers.</p>
+          </div>
+        </div>
+
+        <div class="use-case-card">
+          <div class="use-case-icon">🏨</div>
+          <div>
+            <h3>Hospice & Palliative Care</h3>
+            <p>Ensuring comfort and dignity in end-of-life care through clear, compassionate communication.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Simple</p>
+        <h2 class="section-title">How ECHO Works</h2>
+        <p class="section-subtitle">Get started in seconds. No complicated setup.</p>
+      </div>
+
+      <div class="steps-container">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Open ECHO</h3>
+          <p>No account required to try. Just open the app on any phone, tablet, or computer and you're ready.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Tap What You Need</h3>
+          <p>Patient taps a button—Pain, Thirsty, Help—and caregivers are instantly alerted with sound and visual feedback.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Track & Report</h3>
+          <p>Every interaction is logged. Download or print reports for doctor visits, shift changes, or family updates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Testimonials</p>
+        <h2 class="section-title">Stories That Matter</h2>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"</div>
+          <p class="testimonial-text">After my mother's stroke, she couldn't speak. ECHO gave her a way to tell us when she was in pain. For the first time in weeks, she could communicate. It changed everything for our family.</p>
+          <p class="testimonial-author">Maria S.</p>
+          <p class="testimonial-role">Family Caregiver</p>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"</div>
+          <p class="testimonial-text">We use ECHO in our post-surgery recovery unit. Patients who can't speak due to intubation can finally communicate their needs. The nurses love it because they can respond faster.</p>
+          <p class="testimonial-author">Dr. James Chen</p>
+          <p class="testimonial-role">Hospital Administrator</p>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-quote">"</div>
+          <p class="testimonial-text">My son has autism and struggles to express pain. The body map feature helps him show us exactly where it hurts. The Kids Mode sloth makes him smile even when he's not feeling well.</p>
+          <p class="testimonial-author">Jennifer K.</p>
+          <p class="testimonial-role">Parent</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">Pricing</p>
+        <h2 class="section-title">Simple & Affordable</h2>
+        <p class="section-subtitle">One plan with everything included. No hidden fees.</p>
+      </div>
+
+      <div class="pricing-card">
+        <p class="pricing-label">Personal Plan</p>
+        <p class="pricing-amount">$10</p>
+        <p class="pricing-period">/month</p>
+        <p class="pricing-note">7-day free trial • Cancel anytime</p>
+
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> Full app access on any device</li>
+          <li><span class="check">✓</span> Interactive body map + internal organs</li>
+          <li><span class="check">✓</span> 12 one-tap communication buttons</li>
+          <li><span class="check">✓</span> Voice recognition (hands-free)</li>
+          <li><span class="check">✓</span> Medication & visitor tracking</li>
+          <li><span class="check">✓</span> Document photo capture</li>
+          <li><span class="check">✓</span> Caregiver dashboard</li>
+          <li><span class="check">✓</span> Print & download reports</li>
+          <li><span class="check">✓</span> Kids Mode with sloth mascot 🦥</li>
+          <li><span class="check">✓</span> Audio accessibility features</li>
+          <li><span class="check">✓</span> English & Spanish support</li>
+          <li><span class="check">✓</span> All future updates included</li>
+        </ul>
+
+        <a href="https://buy.stripe.com/aFafZgfY31tueKzehX00000" class="btn btn-primary">Start 7-Day Free Trial</a>
+
+        <p class="pricing-footer">
+          🏥 Facility & enterprise pricing available — <a href="mailto:mirza@speakecho.co">contact us</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-label">FAQ</p>
+        <h2 class="section-title">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-container">
+        <div class="faq-item">
+          <button class="faq-question">
+            Is ECHO a medical device?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              <strong>No.</strong> ECHO is a communication aid only. It does not provide medical advice, diagnosis, or treatment. Always consult qualified healthcare providers for medical decisions. In case of emergency, call 911.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            What devices does ECHO work on?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              ECHO works on any smartphone, tablet, or computer with a modern web browser (Chrome, Safari, Firefox, Edge). No app download required—just visit the website and start using it.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            Does voice recognition work in all browsers?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Voice recognition works best in Chrome, Safari, and Edge. Some browsers may have limited support. The tap-based features work everywhere, so you can always communicate even without voice.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            Is my data secure?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Yes. ECHO stores data locally on your device. We don't have access to your medical logs or personal information. You're responsible for your device security and any exported files. We never sell your data.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            Can I use ECHO for multiple patients?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Yes. You can clear and restart logs at any time for different patients. For facilities managing multiple patients simultaneously, contact us about our enterprise plans.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            Is there a free trial?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Yes! You get a 7-day free trial. Experience all the features before you're charged. Cancel anytime during the trial and pay nothing.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            How do I cancel my subscription?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              You can cancel anytime by emailing mirza@speakecho.co or using the cancellation option in your Stripe account. Access continues until the end of your billing period. No questions asked.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question">
+            What if I need help?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Email us at mirza@speakecho.co. We typically respond within 24 hours. You can also reach us on Instagram @echo_patienttool.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>Give Your Loved One a Voice</h2>
+      <p>No one should suffer in silence. Start communicating today.</p>
+      <a href="https://buy.stripe.com/aFafZgfY31tueKzehX00000" class="btn">Start 7-Day Free Trial</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <a href="#" class="logo">💙 ECHO</a>
+        <p>When Words Aren't Possible, ECHO Speaks</p>
+        <p style="margin-top: 1rem;">Patient Communication Tool</p>
+      </div>
+
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="https://buy.stripe.com/aFafZgfY31tueKzehX00000">Try Free</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#story">Our Story</a></li>
+            <li><a href="mailto:mirza@speakecho.co">Contact</a></li>
+            <li><a href="https://instagram.com/echo_patienttool">Instagram</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="/terms">Terms of Service</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a></li>
+            <li><a href="https://instagram.com/echo_patienttool">@echo_patienttool</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 ECHO Patient Communication Tool. All rights reserved.</p>
+      <p>Made with <span class="footer-heart">❤️</span> in memory of those who inspired it</p>
+    </div>
+  </footer>
+
+  <script>
+    // FAQ Accordion
+    document.querySelectorAll('.faq-question').forEach(button => {
+      button.addEventListener('click', () => {
+        const faqItem = button.parentElement;
+        const isOpen = faqItem.classList.contains('open');
+
+        // Close all
+        document.querySelectorAll('.faq-item').forEach(item => {
+          item.classList.remove('open');
+        });
+
+        // Open clicked if it wasn't open
+        if (!isOpen) {
+          faqItem.classList.add('open');
+        }
+      });
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Navbar background on scroll
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      if (window.scrollY > 50) {
+        nav.style.background = 'rgba(15, 23, 42, 0.98)';
+      } else {
+        nav.style.background = 'rgba(15, 23, 42, 0.9)';
+      }
+    });
+  </script>
+</body>
+</html>
