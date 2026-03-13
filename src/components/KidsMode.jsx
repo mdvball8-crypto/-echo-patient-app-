@@ -1,95 +1,134 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApp } from '../contexts/AppContext';
 
 const KidsMode = () => {
-  const { t, handleQuickButton, playSound, speak, language } = useApp();
+  const { t, handleQuickButton, playSound, speak, language, theme } = useApp();
   const [slothMessage, setSlothMessage] = useState('');
   const [isSlothTalking, setIsSlothTalking] = useState(false);
 
-  // Sloth messages in both languages
+  // Sloth messages in both languages - friendlier and more encouraging
   const slothMessages = {
     en: {
-      greeting: ["Hi friend! I'm Sammy!", "How can I help you today?", "Take your time!"],
-      emergency: ["Help is coming!", "Don't worry, you're safe!"],
-      pain: ["Oh no! Let's get help!", "I'll tell the grown-ups!"],
-      thirsty: ["Water coming!", "Good job telling me!"],
-      hungry: ["Yummy food soon!", "I'm hungry too sometimes!"],
-      bathroom: ["Help is coming!", "Good job asking!"],
-      okay: ["Yay! So happy!", "That's great news!"],
-      cold: ["Let's get you warm!", "A blanket is coming!"],
-      hot: ["Let's cool you down!", "Help is on the way!"],
-      tired: ["Rest is important!", "Time for a nap?"],
-      anxious: ["It's okay to feel scared", "I'm here with you!"],
-      encouragement: ["You're amazing!", "So proud of you!", "Great job!"]
+      greeting: ["Hi friend! I'm Sammy the Sloth!", "How can I help you today?", "Take your time, I'm right here!"],
+      emergency: ["Help is coming really fast!", "Don't worry, you're safe with me!", "Someone is coming to help!"],
+      pain: ["Oh no! Let me get the grown-ups!", "I'll tell someone right away!", "Help is on the way, friend!"],
+      thirsty: ["Yummy water coming soon!", "Good job telling me you're thirsty!", "Water is the best!"],
+      hungry: ["Yummy food is coming!", "I get hungry too sometimes!", "Food will be here soon!"],
+      bathroom: ["Someone will help you!", "Great job asking for help!", "Help is coming right now!"],
+      okay: ["Yay! That makes me so happy!", "That's wonderful news!", "You're doing great!"],
+      cold: ["Let's get you nice and warm!", "A cozy blanket is coming!", "We'll warm you up!"],
+      hot: ["Let's cool you down!", "We'll make you comfy!", "Help is coming to cool you off!"],
+      tired: ["Rest is super important!", "It's okay to rest!", "Maybe a nice nap?"],
+      anxious: ["It's okay to feel scared sometimes", "I'm right here with you!", "You're so brave!"],
+      encouragement: ["You're doing amazing!", "I'm so proud of you!", "You're the best!", "Great job!"]
     },
     es: {
-      greeting: ["¡Hola amigo! ¡Soy Sammy!", "¿Cómo te puedo ayudar?", "¡Tómate tu tiempo!"],
-      emergency: ["¡La ayuda viene en camino!", "¡No te preocupes, estás seguro!"],
-      pain: ["¡Oh no! ¡Vamos a buscar ayuda!", "¡Le diré a los adultos!"],
-      thirsty: ["¡Agua en camino!", "¡Bien hecho por decirme!"],
-      hungry: ["¡Comida rica pronto!", "¡Yo también tengo hambre a veces!"],
-      bathroom: ["¡La ayuda viene!", "¡Bien hecho por pedir!"],
-      okay: ["¡Yay! ¡Qué feliz!", "¡Qué buenas noticias!"],
-      cold: ["¡Vamos a calentarte!", "¡Una cobija viene!"],
-      hot: ["¡Vamos a refrescarte!", "¡La ayuda viene!"],
-      tired: ["¡Descansar es importante!", "¿Hora de una siesta?"],
-      anxious: ["Está bien sentir miedo", "¡Estoy aquí contigo!"],
-      encouragement: ["¡Eres increíble!", "¡Muy orgulloso de ti!", "¡Buen trabajo!"]
+      greeting: ["¡Hola amiguito! ¡Soy Sammy el Perezoso!", "¿Cómo te puedo ayudar hoy?", "¡Tómate tu tiempo, estoy aquí contigo!"],
+      emergency: ["¡La ayuda viene muy rápido!", "¡No te preocupes, estás seguro conmigo!", "¡Alguien viene a ayudarte!"],
+      pain: ["¡Oh no! ¡Voy a llamar a los adultos!", "¡Les digo ahora mismo!", "¡La ayuda viene, amiguito!"],
+      thirsty: ["¡Rica agua viene pronto!", "¡Qué bien que me dijiste que tienes sed!", "¡El agua es lo mejor!"],
+      hungry: ["¡Rica comida viene!", "¡Yo también tengo hambre a veces!", "¡La comida llegará pronto!"],
+      bathroom: ["¡Alguien te va a ayudar!", "¡Muy bien por pedir ayuda!", "¡La ayuda viene ahora!"],
+      okay: ["¡Yay! ¡Eso me hace muy feliz!", "¡Qué maravillosas noticias!", "¡Lo estás haciendo genial!"],
+      cold: ["¡Vamos a calentarte bien!", "¡Una cobijita viene!", "¡Te vamos a calentar!"],
+      hot: ["¡Vamos a refrescarte!", "¡Te vamos a poner cómodo!", "¡Viene ayuda para refrescarte!"],
+      tired: ["¡Descansar es muy importante!", "¡Está bien descansar!", "¿Quizás una siestita?"],
+      anxious: ["Está bien sentir miedo a veces", "¡Estoy aquí contigo!", "¡Eres muy valiente!"],
+      encouragement: ["¡Lo estás haciendo increíble!", "¡Estoy muy orgulloso de ti!", "¡Eres el mejor!", "¡Muy bien!"]
     }
   };
 
-  const speakMessage = (type) => {
+  // Initialize voices when component mounts
+  useEffect(() => {
+    // Load voices (needed for some browsers)
+    window.speechSynthesis.getVoices();
+  }, []);
+
+  const speakMessage = useCallback((type) => {
     const messages = slothMessages[language]?.[type] || slothMessages.en[type] || slothMessages[language].encouragement;
     const message = messages[Math.floor(Math.random() * messages.length)];
     setSlothMessage(message);
     setIsSlothTalking(true);
     speak(message);
     setTimeout(() => setIsSlothTalking(false), 3000);
-  };
+  }, [language, speak]);
 
+  // Greet on mount and language change
   useEffect(() => {
-    speakMessage('greeting');
-  }, [language]);
+    const timer = setTimeout(() => {
+      speakMessage('greeting');
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleKidsButton = (type, label) => {
     playSound(type === 'emergency' ? 'emergency' : 'beep');
-    speak(label);
     handleQuickButton(type);
-    speakMessage(type);
+    // Speak the label and then Sammy's response together
+    const messages = slothMessages[language]?.[type] || slothMessages.en[type] || slothMessages[language].encouragement;
+    const sammyResponse = messages[Math.floor(Math.random() * messages.length)];
+    // Combine both messages so they're spoken together without interruption
+    speak(`${label}. ${sammyResponse}`);
+    setSlothMessage(sammyResponse);
+    setIsSlothTalking(true);
+    setTimeout(() => setIsSlothTalking(false), 3000);
   };
 
-  // Kids buttons with translation keys - pastel colors, vertical layout
+  // Kids buttons with pastel colors - vertical layout
   const kidsButtons = [
-    { id: 'emergency', emoji: '🚨', labelKey: 'helpMe', color: 'from-red-400 to-red-500', size: 'xl' },
-    { id: 'pain', emoji: '🤕', labelKey: 'ouchItHurts', color: 'from-orange-300 to-orange-400' },
-    { id: 'okay', emoji: '😊', labelKey: 'imFeelingGood', color: 'from-green-300 to-emerald-400' },
-    { id: 'thirsty', emoji: '💧', labelKey: 'iWantWater', color: 'from-sky-300 to-blue-400' },
-    { id: 'hungry', emoji: '🍎', labelKey: 'imHungry', color: 'from-lime-300 to-green-400' },
-    { id: 'bathroom', emoji: '🚽', labelKey: 'bathroomPlease', color: 'from-cyan-300 to-teal-400' },
-    { id: 'cold', emoji: '🥶', labelKey: 'imCold', color: 'from-blue-200 to-blue-400' },
-    { id: 'hot', emoji: '🥵', labelKey: 'imHot', color: 'from-amber-300 to-orange-400' },
-    { id: 'tired', emoji: '😴', labelKey: 'imSleepy', color: 'from-indigo-300 to-purple-400' },
-    { id: 'anxious', emoji: '😰', labelKey: 'imScared', color: 'from-pink-300 to-rose-400' },
+    { id: 'emergency', emoji: '🚨', labelKey: 'helpMe', color: 'linear-gradient(135deg, #ff6b6b, #ee5a5a)', size: 'xl' },
+    { id: 'pain', emoji: '🤕', labelKey: 'ouchItHurts', color: 'linear-gradient(135deg, #ffa94d, #ff922b)' },
+    { id: 'okay', emoji: '😊', labelKey: 'imFeelingGood', color: 'linear-gradient(135deg, #69db7c, #51cf66)' },
+    { id: 'thirsty', emoji: '💧', labelKey: 'iWantWater', color: 'linear-gradient(135deg, #74c0fc, #4dabf7)' },
+    { id: 'hungry', emoji: '🍎', labelKey: 'imHungry', color: 'linear-gradient(135deg, #a9e34b, #94d82d)' },
+    { id: 'bathroom', emoji: '🚽', labelKey: 'bathroomPlease', color: 'linear-gradient(135deg, #63e6be, #38d9a9)' },
+    { id: 'cold', emoji: '🥶', labelKey: 'imCold', color: 'linear-gradient(135deg, #91a7ff, #748ffc)' },
+    { id: 'hot', emoji: '🥵', labelKey: 'imHot', color: 'linear-gradient(135deg, #ffc078, #ffa94d)' },
+    { id: 'tired', emoji: '😴', labelKey: 'imSleepy', color: 'linear-gradient(135deg, #b197fc, #9775fa)' },
+    { id: 'anxious', emoji: '😰', labelKey: 'imScared', color: 'linear-gradient(135deg, #faa2c1, #f783ac)' },
   ];
 
+  // Background colors based on theme
+  const bgGradient = theme === 'dark'
+    ? 'linear-gradient(180deg, rgba(255,182,193,0.1) 0%, rgba(186,85,211,0.1) 50%, rgba(135,206,250,0.1) 100%)'
+    : 'linear-gradient(180deg, rgba(255,182,193,0.2) 0%, rgba(186,85,211,0.15) 50%, rgba(135,206,250,0.2) 100%)';
+
   return (
-    <div className="p-4 bg-gradient-to-b from-pink-100/10 via-purple-100/10 to-blue-100/10 min-h-screen">
+    <div className="p-4 min-h-screen" style={{ background: bgGradient }}>
       {/* Sloth mascot */}
       <div className="relative mb-4 flex items-center justify-center">
         <div className={`relative ${isSlothTalking ? 'animate-bounce' : ''}`}>
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-200 to-amber-300 flex items-center justify-center text-5xl shadow-lg border-4 border-amber-100">
+          <div
+            className="w-24 h-24 rounded-full flex items-center justify-center text-6xl shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #ffd43b, #fab005)',
+              border: '4px solid rgba(255, 255, 255, 0.5)'
+            }}
+          >
             🦥
           </div>
         </div>
         {slothMessage && (
-          <div className="ml-4 bg-white rounded-2xl px-4 py-2 shadow-lg border-2 border-pink-200 max-w-[200px]">
-            <p className="text-gray-700 font-medium text-sm">{slothMessage}</p>
+          <div
+            className="ml-4 rounded-2xl px-4 py-3 shadow-lg max-w-[200px]"
+            style={{
+              background: theme === 'dark' ? 'rgba(255, 255, 255, 0.95)' : 'white',
+              border: '3px solid #fcc2d7'
+            }}
+          >
+            <p className="font-medium text-sm" style={{ color: '#495057' }}>{slothMessage}</p>
           </div>
         )}
       </div>
 
       {/* Title */}
-      <h1 className="text-2xl font-bold text-center text-amber-400 mb-4">
+      <h1
+        className="text-3xl font-bold text-center mb-6"
+        style={{
+          color: theme === 'dark' ? '#ffd43b' : '#e67700',
+          textShadow: theme === 'dark' ? '0 2px 8px rgba(255, 212, 59, 0.3)' : 'none'
+        }}
+      >
         {t('hiThere')}
       </h1>
 
@@ -101,21 +140,22 @@ const KidsMode = () => {
             <button
               key={button.id}
               onClick={() => handleKidsButton(button.id, label)}
-              className={`
-                w-full rounded-3xl bg-gradient-to-r ${button.color}
-                transform transition-all duration-200
-                hover:scale-[1.02] active:scale-[0.98]
-                shadow-lg hover:shadow-xl
-                ${button.size === 'xl' ? 'py-6' : 'py-4'}
-                relative overflow-hidden
-              `}
+              className="w-full rounded-3xl transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden"
+              style={{
+                background: button.color,
+                padding: button.size === 'xl' ? '24px' : '16px',
+                boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)'
+              }}
               aria-label={label}
             >
               <div className="flex items-center justify-center gap-4">
-                <span className={`${button.size === 'xl' ? 'text-5xl' : 'text-4xl'}`}>
+                <span className={button.size === 'xl' ? 'text-5xl' : 'text-4xl'}>
                   {button.emoji}
                 </span>
-                <span className={`font-bold text-white drop-shadow-md ${button.size === 'xl' ? 'text-2xl' : 'text-xl'}`}>
+                <span
+                  className={`font-bold text-white ${button.size === 'xl' ? 'text-2xl' : 'text-xl'}`}
+                  style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)' }}
+                >
                   {label}
                 </span>
               </div>
@@ -126,7 +166,12 @@ const KidsMode = () => {
 
       {/* Footer */}
       <div className="mt-6 text-center">
-        <p className="text-amber-300">{t('sammyProud')}</p>
+        <p
+          className="text-lg font-medium"
+          style={{ color: theme === 'dark' ? '#ffd43b' : '#e67700' }}
+        >
+          {t('sammyProud')}
+        </p>
       </div>
     </div>
   );

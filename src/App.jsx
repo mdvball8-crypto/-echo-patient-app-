@@ -9,6 +9,7 @@ import VisitorLog from './components/VisitorLog';
 import MedicationTracker from './components/MedicationTracker';
 import CaregiverDashboard from './components/CaregiverDashboard';
 import KidsMode from './components/KidsMode';
+import NotesScreen from './components/NotesScreen';
 import {
   Home,
   User,
@@ -22,7 +23,10 @@ import {
   VolumeX,
   Baby,
   Heart,
-  X
+  X,
+  Sun,
+  Moon,
+  FileText
 } from 'lucide-react';
 
 const Header = () => {
@@ -37,7 +41,9 @@ const Header = () => {
     voiceEnabled,
     setVoiceEnabled,
     speak,
-    t
+    t,
+    theme,
+    toggleTheme
   } = useApp();
 
   // Hidden safety feature state
@@ -234,43 +240,68 @@ const Header = () => {
     }, 100);
   };
 
+  const handleThemeToggle = () => {
+    toggleTheme();
+    playSound('click');
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    speak(newTheme === 'dark'
+      ? (language === 'es' ? 'Modo oscuro' : 'Dark mode')
+      : (language === 'es' ? 'Modo claro' : 'Light mode')
+    );
+  };
+
   return (
-    <header className="glass sticky top-0 z-50 border-b border-cyan-500/20 no-print">
+    <header className="glass sticky top-0 z-50 no-print" style={{ borderBottom: '1px solid var(--color-border)' }}>
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo - Clickable for hidden safety menu */}
         <div className="flex items-center gap-2 relative" ref={safetyMenuRef}>
           <button
             onClick={handleLogoClick}
-            className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 hover:scale-105 transition-transform"
+            className="w-10 h-10 rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
+            style={{
+              background: 'var(--color-accent)',
+              boxShadow: '0 4px 12px var(--color-shadow-elevated)'
+            }}
             aria-label="Menu"
           >
             <Heart className="w-6 h-6 text-white" />
           </button>
-          <span className="text-2xl font-bold gradient-text">ECHO</span>
+          <span className="text-2xl font-semibold text-headline gradient-text">ECHO</span>
 
           {/* Hidden Safety Menu - appears as a normal dropdown */}
           {showSafetyMenu && (
-            <div className="absolute top-12 left-0 w-64 bg-dark-800 border border-dark-600 rounded-xl shadow-2xl z-50 overflow-hidden">
+            <div
+              className="absolute top-12 left-0 w-64 rounded-xl shadow-2xl z-50 overflow-hidden"
+              style={{
+                background: 'var(--color-bg-secondary)',
+                border: '1px solid var(--color-border)',
+                boxShadow: '0 8px 32px var(--color-shadow-elevated)'
+              }}
+            >
               {/* Header */}
-              <div className="p-3 border-b border-dark-600 flex items-center justify-between">
-                <span className="text-sm text-gray-400">{language === 'es' ? 'Opciones' : 'Options'}</span>
+              <div
+                className="p-3 flex items-center justify-between"
+                style={{ borderBottom: '1px solid var(--color-border)' }}
+              >
+                <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{language === 'es' ? 'Opciones' : 'Options'}</span>
                 <button
                   onClick={() => { setShowSafetyMenu(false); setShowSetup(false); }}
-                  className="p-1 hover:bg-dark-700 rounded"
+                  className="p-1 rounded transition-colors"
+                  style={{ color: 'var(--color-text-tertiary)' }}
                 >
-                  <X className="w-4 h-4 text-gray-500" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Setup contacts view */}
               {showSetup ? (
                 <div className="p-3">
-                  <p className="text-xs text-gray-400 mb-3">
+                  <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)' }}>
                     {language === 'es' ? 'Configurar contactos' : 'Setup contacts'}
                   </p>
                   <div className="space-y-3">
                     <div>
-                      <label className="text-xs text-gray-500 block mb-1">
+                      <label className="text-xs block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
                         {language === 'es' ? 'Contacto 1' : 'Contact 1'}
                       </label>
                       <input
@@ -278,11 +309,11 @@ const Header = () => {
                         value={momPhone}
                         onChange={(e) => setMomPhone(e.target.value)}
                         placeholder={language === 'es' ? 'Número de teléfono' : 'Phone number'}
-                        className="w-full p-2 bg-dark-700 border border-dark-600 rounded-lg text-sm text-white"
+                        className="input-field text-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 block mb-1">
+                      <label className="text-xs block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
                         {language === 'es' ? 'Contacto 2' : 'Contact 2'}
                       </label>
                       <input
@@ -290,12 +321,16 @@ const Header = () => {
                         value={dadPhone}
                         onChange={(e) => setDadPhone(e.target.value)}
                         placeholder={language === 'es' ? 'Número de teléfono' : 'Phone number'}
-                        className="w-full p-2 bg-dark-700 border border-dark-600 rounded-lg text-sm text-white"
+                        className="input-field text-sm"
                       />
                     </div>
                     <button
                       onClick={saveContacts}
-                      className="w-full py-2 bg-cyan-500/20 hover:bg-cyan-500/30 rounded-lg text-sm text-cyan-400"
+                      className="w-full py-2 rounded-lg text-sm transition-colors"
+                      style={{
+                        background: 'var(--color-accent-soft)',
+                        color: 'var(--color-accent)'
+                      }}
                     >
                       {language === 'es' ? 'Guardar' : 'Save'}
                     </button>
@@ -304,31 +339,35 @@ const Header = () => {
               ) : audioBlob && !isRecording ? (
                 /* Send options after recording */
                 <div className="p-3">
-                  <p className="text-xs text-gray-400 mb-3">
+                  <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)' }}>
                     {language === 'es' ? 'Enviar grabación a:' : 'Send recording to:'}
                   </p>
                   <div className="space-y-2">
                     <button
                       onClick={sendTo911}
-                      className="w-full py-3 px-4 bg-dark-700 hover:bg-dark-600 rounded-lg text-sm text-gray-300 transition-all text-left"
+                      className="w-full py-3 px-4 rounded-lg text-sm transition-all text-left"
+                      style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
                     >
                       {language === 'es' ? 'Servicios de emergencia' : 'Emergency services'}
                     </button>
                     <button
                       onClick={() => sendToContact(momPhone, 'Mom')}
-                      className="w-full py-3 px-4 bg-dark-700 hover:bg-dark-600 rounded-lg text-sm text-gray-300 transition-all text-left"
+                      className="w-full py-3 px-4 rounded-lg text-sm transition-all text-left"
+                      style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
                     >
                       {language === 'es' ? 'Contacto 1 (Mamá)' : 'Contact 1 (Mom)'}
                     </button>
                     <button
                       onClick={() => sendToContact(dadPhone, 'Dad')}
-                      className="w-full py-3 px-4 bg-dark-700 hover:bg-dark-600 rounded-lg text-sm text-gray-300 transition-all text-left"
+                      className="w-full py-3 px-4 rounded-lg text-sm transition-all text-left"
+                      style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
                     >
                       {language === 'es' ? 'Contacto 2 (Papá)' : 'Contact 2 (Dad)'}
                     </button>
                     <button
                       onClick={resetRecording}
-                      className="w-full py-2 px-4 bg-dark-600 hover:bg-dark-500 rounded-lg text-xs text-gray-400 transition-all"
+                      className="w-full py-2 px-4 rounded-lg text-xs transition-all"
+                      style={{ background: 'var(--color-border)', color: 'var(--color-text-tertiary)' }}
                     >
                       {language === 'es' ? 'Cancelar' : 'Cancel'}
                     </button>
@@ -338,11 +377,11 @@ const Header = () => {
                 /* Recording controls */
                 <div className="p-3">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm text-gray-300">
+                    <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>
                       {language === 'es' ? 'Nota de voz' : 'Voice note'}
                     </span>
                     {isRecording && (
-                      <span className="text-xs text-red-400 animate-pulse">
+                      <span className="text-xs animate-pulse" style={{ color: 'var(--color-danger)' }}>
                         {formatTime(recordingTime)}
                       </span>
                     )}
@@ -350,14 +389,16 @@ const Header = () => {
                   {!isRecording ? (
                     <button
                       onClick={startRecording}
-                      className="w-full py-3 px-4 bg-dark-700 hover:bg-dark-600 rounded-lg text-sm text-gray-300 transition-all"
+                      className="w-full py-3 px-4 rounded-lg text-sm transition-all"
+                      style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
                     >
                       {language === 'es' ? 'Grabar mensaje' : 'Record message'}
                     </button>
                   ) : (
                     <button
                       onClick={stopRecording}
-                      className="w-full py-3 px-4 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-sm text-red-400 transition-all"
+                      className="w-full py-3 px-4 rounded-lg text-sm transition-all"
+                      style={{ background: 'rgba(255, 59, 48, 0.15)', color: 'var(--color-danger)' }}
                     >
                       {language === 'es' ? 'Detener grabación' : 'Stop recording'}
                     </button>
@@ -366,7 +407,8 @@ const Header = () => {
                   {/* Setup link */}
                   <button
                     onClick={() => setShowSetup(true)}
-                    className="w-full mt-3 py-2 text-xs text-gray-500 hover:text-gray-400 transition-all"
+                    className="w-full mt-3 py-2 text-xs transition-all"
+                    style={{ color: 'var(--color-text-tertiary)' }}
                   >
                     {language === 'es' ? 'Configurar contactos' : 'Setup contacts'}
                   </button>
@@ -378,13 +420,24 @@ const Header = () => {
 
         {/* Controls */}
         <div className="flex items-center gap-1">
+          {/* Theme Toggle */}
+          <button
+            onClick={handleThemeToggle}
+            className="theme-toggle"
+            title={theme === 'light' ? 'Dark mode' : 'Light mode'}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            <Sun className="theme-toggle-icon theme-toggle-sun w-5 h-5" style={{ color: 'var(--color-text-primary)' }} />
+            <Moon className="theme-toggle-icon theme-toggle-moon w-5 h-5" style={{ color: 'var(--color-text-primary)' }} />
+          </button>
+
           {/* Kids Mode */}
           <button
             onClick={handleKidsModeToggle}
             className={`p-2 rounded-lg transition-all ${
               isKidsMode
                 ? 'bg-yellow-500 text-black'
-                : 'bg-dark-700 text-gray-400 hover:text-white'
+                : 'btn-icon'
             }`}
             title={t('kidsMode')}
             aria-label={t('kidsMode')}
@@ -395,11 +448,11 @@ const Header = () => {
           {/* Sound */}
           <button
             onClick={handleSoundToggle}
-            className={`p-2 rounded-lg transition-all ${
-              soundEnabled
-                ? 'bg-cyan-500/20 text-cyan-400'
-                : 'bg-dark-700 text-gray-400 hover:text-white'
-            }`}
+            className="btn-icon"
+            style={{
+              background: soundEnabled ? 'var(--color-accent-soft)' : 'var(--color-bg-tertiary)',
+              color: soundEnabled ? 'var(--color-accent)' : 'var(--color-text-secondary)'
+            }}
             title={soundEnabled ? t('soundOn') : t('soundOff')}
             aria-label={soundEnabled ? t('soundOn') : t('soundOff')}
           >
@@ -409,11 +462,11 @@ const Header = () => {
           {/* Voice (Text-to-Speech) */}
           <button
             onClick={handleVoiceToggle}
-            className={`p-2 rounded-lg transition-all ${
-              voiceEnabled
-                ? 'bg-green-500/20 text-green-400'
-                : 'bg-dark-700 text-gray-400 hover:text-white'
-            }`}
+            className="btn-icon"
+            style={{
+              background: voiceEnabled ? 'rgba(48, 209, 88, 0.15)' : 'var(--color-bg-tertiary)',
+              color: voiceEnabled ? 'var(--color-success)' : 'var(--color-text-secondary)'
+            }}
             title={voiceEnabled ? t('voiceOn') : t('voiceOff')}
             aria-label={voiceEnabled ? t('voiceOn') : t('voiceOff')}
           >
@@ -423,7 +476,11 @@ const Header = () => {
           {/* Language */}
           <button
             onClick={handleLanguageToggle}
-            className="px-2 py-1 rounded-lg bg-dark-700 text-gray-300 hover:text-white transition-all text-sm font-bold"
+            className="px-3 py-2 rounded-lg text-sm font-semibold transition-all"
+            style={{
+              background: 'var(--color-bg-tertiary)',
+              color: 'var(--color-text-primary)'
+            }}
             title={t('language')}
             aria-label={language === 'en' ? 'Switch to Spanish' : 'Cambiar a Inglés'}
           >
@@ -443,6 +500,7 @@ const Navigation = ({ currentScreen, setCurrentScreen }) => {
     { id: 'body', icon: User, label: '🧍', tooltip: t('navBody'), screenAnnounce: 'screenBody' },
     { id: 'voice', icon: Mic, label: '🎤', tooltip: t('navVoice'), screenAnnounce: 'screenVoice' },
     { id: 'comfort', icon: Sofa, label: '🛋️', tooltip: t('navComfort'), screenAnnounce: 'screenComfort' },
+    { id: 'notes', icon: FileText, label: '📝', tooltip: t('navNotes'), screenAnnounce: 'screenNotes' },
     { id: 'docs', icon: Camera, label: '📷', tooltip: t('navDocs'), screenAnnounce: 'screenDocs' },
     { id: 'visitors', icon: Users, label: '👥', tooltip: t('navVisitors'), screenAnnounce: 'screenVisitors' },
     { id: 'meds', icon: Pill, label: '💊', tooltip: t('navMeds'), screenAnnounce: 'screenMeds' },
@@ -457,9 +515,9 @@ const Navigation = ({ currentScreen, setCurrentScreen }) => {
   };
 
   return (
-    <nav className="glass border-b border-cyan-500/20 no-print sticky top-[68px] z-40">
+    <nav className="glass no-print sticky top-[68px] z-40" style={{ borderBottom: '1px solid var(--color-border)' }}>
       <div className="max-w-4xl mx-auto px-2 py-2">
-        <div className="flex justify-around items-center">
+        <div className="flex justify-around items-center overflow-x-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentScreen === item.id;
@@ -468,13 +526,12 @@ const Navigation = ({ currentScreen, setCurrentScreen }) => {
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item)}
-                className={`
-                  flex flex-col items-center p-2 rounded-xl transition-all min-w-[50px]
-                  ${isActive
-                    ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
-                    : 'text-gray-400 hover:text-white hover:bg-dark-700'
-                  }
-                `}
+                className="flex flex-col items-center p-2 rounded-xl transition-all min-w-[44px]"
+                style={{
+                  background: isActive ? 'var(--color-accent)' : 'transparent',
+                  color: isActive ? 'white' : 'var(--color-text-secondary)',
+                  boxShadow: isActive ? '0 4px 12px var(--color-shadow-elevated)' : 'none'
+                }}
                 title={item.tooltip}
                 aria-label={item.tooltip}
               >
@@ -521,6 +578,8 @@ const MainContent = ({ currentScreen, setCurrentScreen }) => {
       return <VoiceRecognition />;
     case 'comfort':
       return <ComfortScreen />;
+    case 'notes':
+      return <NotesScreen />;
     case 'docs':
       return <DocumentsScreen />;
     case 'visitors':
@@ -536,15 +595,19 @@ const MainContent = ({ currentScreen, setCurrentScreen }) => {
 
 const AppContent = () => {
   const [currentScreen, setCurrentScreen] = useState('home');
+  const { theme } = useApp();
 
   return (
-    <div className="min-h-screen bg-dark-900">
-      {/* Background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-cyan-900/20 via-dark-900 to-blue-900/20 pointer-events-none" />
-
-      {/* Decorative orbs */}
-      <div className="fixed top-40 left-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="fixed bottom-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen transition-colors" style={{ backgroundColor: 'var(--color-bg-primary)' }}>
+      {/* Background gradient - subtle based on theme */}
+      <div
+        className="fixed inset-0 pointer-events-none transition-opacity"
+        style={{
+          background: theme === 'dark'
+            ? 'radial-gradient(ellipse at top left, rgba(10, 132, 255, 0.08), transparent 50%), radial-gradient(ellipse at bottom right, rgba(94, 92, 230, 0.08), transparent 50%)'
+            : 'radial-gradient(ellipse at top left, rgba(0, 113, 227, 0.04), transparent 50%), radial-gradient(ellipse at bottom right, rgba(94, 92, 230, 0.04), transparent 50%)'
+        }}
+      />
 
       {/* Main content */}
       <div className="relative z-10">

@@ -12,6 +12,43 @@ export const useApp = () => {
 };
 
 export const AppProvider = ({ children }) => {
+  // Theme state (light/dark)
+  const [theme, setTheme] = useState(() => {
+    // Check localStorage first
+    const savedTheme = localStorage.getItem('echoTheme');
+    if (savedTheme) return savedTheme;
+    // Then check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
+  });
+
+  // Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('echoTheme', theme);
+  }, [theme]);
+
+  // Listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      const savedTheme = localStorage.getItem('echoTheme');
+      // Only auto-switch if user hasn't manually set a preference
+      if (!savedTheme) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  // Toggle theme
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  }, []);
+
   // Language state
   const [language, setLanguage] = useState('en');
 
@@ -24,23 +61,65 @@ export const AppProvider = ({ children }) => {
   // Voice enabled state (text-to-speech)
   const [voiceEnabled, setVoiceEnabled] = useState(true);
 
+  // Notes state
+  const [notes, setNotes] = useState([]);
+
   // Speak text aloud using Web Speech API
   const speak = useCallback((text, options = {}) => {
     if (!voiceEnabled || !text) return;
 
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel();
+    // Don't cancel - let it queue up so speech doesn't get cut off
+    // Only cancel if explicitly requested
+    if (options.interrupt) {
+      window.speechSynthesis.cancel();
+    }
 
     const utterance = new SpeechSynthesisUtterance(text);
 
     // Set language based on current language setting
     utterance.lang = language === 'es' ? 'es-ES' : 'en-US';
-    utterance.rate = options.rate || 1.0;
-    utterance.pitch = options.pitch || 1.0;
-    utterance.volume = options.volume || 1.0;
 
-    window.speechSynthesis.speak(utterance);
-  }, [voiceEnabled, language]);
+    // Get available voices
+    let voices = window.speechSynthesis.getVoices();
+
+    // If voices aren't loaded yet, wait for them
+    if (voices.length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        voices = window.speechSynthesis.getVoices();
+      };
+    }
+
+    // Kids mode: Use a friendlier, higher-pitched, slower voice
+    if (isKidsMode) {
+      utterance.rate = options.rate || 0.8;   // Slower for kids
+      utterance.pitch = options.pitch || 1.3; // Higher pitch sounds friendlier
+      utterance.volume = options.volume || 1.0;
+
+      // Try to find a more child-friendly voice
+      const preferredVoices = language === 'es'
+        ? ['paulina', 'monica', 'spanish', 'español']
+        : ['samantha', 'karen', 'victoria', 'female'];
+
+      for (const prefVoice of preferredVoices) {
+        const foundVoice = voices.find(v =>
+          v.name.toLowerCase().includes(prefVoice.toLowerCase())
+        );
+        if (foundVoice) {
+          utterance.voice = foundVoice;
+          break;
+        }
+      }
+    } else {
+      utterance.rate = options.rate || 1.0;
+      utterance.pitch = options.pitch || 1.0;
+      utterance.volume = options.volume || 1.0;
+    }
+
+    // Use a small delay to prevent speech synthesis issues
+    setTimeout(() => {
+      window.speechSynthesis.speak(utterance);
+    }, 50);
+  }, [voiceEnabled, language, isKidsMode]);
 
   // Current view/tab
   const [currentView, setCurrentView] = useState('quick');
@@ -223,6 +302,63 @@ export const AppProvider = ({ children }) => {
     playSound('click');
   }, [playSound]);
 
+  // ===== Notes CRUD Functions =====
+  const addNote = useCallback((note) => {
+    const newNote = {
+      id: Date.now(),
+      title: note.title || '',
+      content: note.content || '',
+      isPinned: note.isPinned || false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setNotes(prev => [newNote, ...prev]);
+    addActivityLog('note', `Note created: ${newNote.title || 'Untitled'}`, { noteId: newNote.id });
+    playSound('success');
+    return newNote;
+  }, [playSound, addActivityLog]);
+
+  const updateNote = useCallback((id, updates) => {
+    setNotes(prev => prev.map(note =>
+      note.id === id
+        ? { ...note, ...updates, updatedAt: new Date().toISOString() }
+        : note
+    ));
+    playSound('click');
+  }, [playSound]);
+
+  const deleteNote = useCallback((id) => {
+    const note = notes.find(n => n.id === id);
+    setNotes(prev => prev.filter(note => note.id !== id));
+    if (note) {
+      addActivityLog('note', `Note deleted: ${note.title || 'Untitled'}`, { noteId: id });
+    }
+    playSound('click');
+  }, [notes, playSound, addActivityLog]);
+
+  const toggleNotePin = useCallback((id) => {
+    setNotes(prev => prev.map(note =>
+      note.id === id
+        ? { ...note, isPinned: !note.isPinned, updatedAt: new Date().toISOString() }
+        : note
+    ));
+    playSound('click');
+  }, [playSound]);
+
+  const clearNotes = useCallback(() => {
+    setNotes([]);
+    playSound('click');
+  }, [playSound]);
+
+  // Get notes sorted with pinned first
+  const getSortedNotes = useCallback(() => {
+    return [...notes].sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    });
+  }, [notes]);
+
   // Quick button press
   const handleQuickButton = useCallback((buttonType) => {
     playSound(buttonType === 'emergency' ? 'emergency' : 'beep');
@@ -242,7 +378,8 @@ export const AppProvider = ({ children }) => {
       anxious: 'Patient feels anxious',
     };
 
-    addAlert(buttonType === 'emergency' ? 'emergency' : 'info', messages[buttonType]);
+    // Pass the actual button type so dashboard can show appropriate icons
+    addAlert(buttonType, messages[buttonType]);
 
     // Update patient status
     if (buttonType === 'emergency') {
@@ -385,6 +522,7 @@ export const AppProvider = ({ children }) => {
         if (data.medicationHistory) setMedicationHistory(data.medicationHistory);
         if (data.visitorHistory) setVisitorHistory(data.visitorHistory);
         if (data.activityLog) setActivityLog(data.activityLog);
+        if (data.notes) setNotes(data.notes);
       } catch (e) {
         console.error('Failed to load saved data:', e);
       }
@@ -400,11 +538,17 @@ export const AppProvider = ({ children }) => {
       medicationHistory,
       visitorHistory,
       activityLog,
+      notes,
     };
     localStorage.setItem('echoAppData', JSON.stringify(dataToSave));
-  }, [language, soundEnabled, painHistory, medicationHistory, visitorHistory, activityLog]);
+  }, [language, soundEnabled, painHistory, medicationHistory, visitorHistory, activityLog, notes]);
 
   const value = {
+    // Theme
+    theme,
+    setTheme,
+    toggleTheme,
+
     // Language
     language,
     setLanguage,
@@ -483,6 +627,15 @@ export const AppProvider = ({ children }) => {
     clearVisitors,
     clearVisitorHistory,
     clearAll,
+
+    // Notes
+    notes,
+    addNote,
+    updateNote,
+    deleteNote,
+    toggleNotePin,
+    clearNotes,
+    getSortedNotes,
   };
 
   return (

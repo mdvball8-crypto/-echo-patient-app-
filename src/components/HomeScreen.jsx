@@ -109,8 +109,10 @@ const HomeScreen = () => {
   const handlePress = (button) => {
     // Play sound
     playSound(button.id === 'emergency' ? 'emergency' : 'beep');
-    // Speak the button label
-    speak(t(button.labelKey));
+    // Speak both the label AND description together so it doesn't get cut off
+    const label = t(button.labelKey);
+    const desc = t(button.descKey);
+    speak(`${label}. ${desc}`);
     // Handle the button action
     handleQuickButton(button.id);
   };

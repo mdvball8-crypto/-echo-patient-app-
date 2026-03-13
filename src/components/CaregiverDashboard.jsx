@@ -16,13 +16,22 @@ import {
   Printer,
   FileText,
   RefreshCw,
-  CheckCircle
+  CheckCircle,
+  Droplets,
+  UtensilsCrossed,
+  Bath,
+  Thermometer,
+  Snowflake,
+  Moon,
+  Frown,
+  HelpCircle,
+  ThumbsUp
 } from 'lucide-react';
 
 const CaregiverDashboard = () => {
-  // Get all data from context
   const {
     t,
+    language,
     alerts,
     acknowledgeAlert,
     deleteAlert,
@@ -45,9 +54,87 @@ const CaregiverDashboard = () => {
 
   const [selectedTab, setSelectedTab] = useState('overview');
 
-  // Simple refresh state - tracks which button is refreshing
+  // Labels for both languages
+  const labels = {
+    en: {
+      title: 'Caregiver Dashboard',
+      patientStatus: 'Patient Status',
+      stable: 'Stable',
+      needsAttention: 'Needs Attention',
+      critical: 'Critical',
+      overview: 'Overview',
+      alerts: 'Alerts',
+      activity: 'Activity',
+      currentPain: 'Current Pain',
+      low: 'Low',
+      moderate: 'Moderate',
+      high: 'High',
+      outOf10: 'out of 10',
+      medsToday: 'Meds Today',
+      dosesGiven: 'Doses Given',
+      today: 'today',
+      currentVisitors: 'Current Visitors',
+      noVisitors: 'No visitors',
+      visitors: 'visitors',
+      visitor: 'visitor',
+      currentlyAlone: 'Currently alone',
+      unreadAlerts: 'Unread Alerts',
+      allClear: 'All clear',
+      needAttention: 'Need attention',
+      totalToday: 'total today',
+      painTrend: 'Pain Trend',
+      last10: 'Last 10 readings',
+      noPainData: 'No pain data recorded',
+      noAlerts: 'No alerts',
+      recentActivity: 'Recent Activity',
+      noActivity: 'No recent activity',
+      refresh: 'Refresh',
+      updated: 'Updated!',
+      acknowledge: 'Acknowledge',
+    },
+    es: {
+      title: 'Panel del Cuidador',
+      patientStatus: 'Estado del Paciente',
+      stable: 'Estable',
+      needsAttention: 'Necesita Atención',
+      critical: 'Crítico',
+      overview: 'Resumen',
+      alerts: 'Alertas',
+      activity: 'Actividad',
+      currentPain: 'Dolor Actual',
+      low: 'Bajo',
+      moderate: 'Moderado',
+      high: 'Alto',
+      outOf10: 'de 10',
+      medsToday: 'Medicinas Hoy',
+      dosesGiven: 'Dosis Dadas',
+      today: 'hoy',
+      currentVisitors: 'Visitantes Actuales',
+      noVisitors: 'Sin visitantes',
+      visitors: 'visitantes',
+      visitor: 'visitante',
+      currentlyAlone: 'Actualmente solo/a',
+      unreadAlerts: 'Alertas Sin Leer',
+      allClear: 'Todo bien',
+      needAttention: 'Necesitan atención',
+      totalToday: 'total hoy',
+      painTrend: 'Tendencia del Dolor',
+      last10: 'Últimas 10 lecturas',
+      noPainData: 'No hay datos de dolor',
+      noAlerts: 'Sin alertas',
+      recentActivity: 'Actividad Reciente',
+      noActivity: 'Sin actividad reciente',
+      refresh: 'Actualizar',
+      updated: '¡Actualizado!',
+      acknowledge: 'Reconocer',
+    }
+  };
+
+  const l = labels[language] || labels.en;
+
+  // Refresh state
   const [refreshState, setRefreshState] = useState({
-    all: 'idle',      // 'idle' | 'spinning' | 'success'
+    all: 'idle',
     pain: 'idle',
     meds: 'idle',
     visitors: 'idle',
@@ -55,60 +142,33 @@ const CaregiverDashboard = () => {
     activity: 'idle'
   });
 
-  // Handle refresh/clear click
   const handleRefresh = useCallback((key) => {
-    // Play click sound
     try {
       playSound('click');
-    } catch (e) {
-      // Sound error - ignore
-    }
+    } catch (e) {}
 
-    // Set to spinning
     setRefreshState(prev => ({ ...prev, [key]: 'spinning' }));
 
-    // After 600ms, clear the data and show success
     setTimeout(() => {
-      // Actually clear the data based on which section
       switch (key) {
-        case 'all':
-          clearAll();
-          break;
-        case 'pain':
-          clearPainHistory();
-          break;
-        case 'meds':
-          clearMedicationHistory();
-          break;
-        case 'visitors':
-          clearVisitors();
-          break;
-        case 'alerts':
-          clearAlerts();
-          break;
-        case 'activity':
-          clearActivityLog();
-          break;
-        default:
-          break;
+        case 'all': clearAll(); break;
+        case 'pain': clearPainHistory(); break;
+        case 'meds': clearMedicationHistory(); break;
+        case 'visitors': clearVisitors(); break;
+        case 'alerts': clearAlerts(); break;
+        case 'activity': clearActivityLog(); break;
+        default: break;
       }
 
       setRefreshState(prev => ({ ...prev, [key]: 'success' }));
+      try { playSound('success'); } catch (e) {}
 
-      try {
-        playSound('success');
-      } catch (e) {
-        console.log('Sound error:', e);
-      }
-
-      // After 1 more second, go back to idle
       setTimeout(() => {
         setRefreshState(prev => ({ ...prev, [key]: 'idle' }));
       }, 1000);
     }, 600);
   }, [playSound, clearAll, clearPainHistory, clearMedicationHistory, clearVisitors, clearAlerts, clearActivityLog]);
 
-  // Calculate values directly from context (always fresh)
   const medsToday = medicationHistory.filter(m => {
     const today = new Date();
     const medDate = new Date(m.timestamp);
@@ -117,33 +177,32 @@ const CaregiverDashboard = () => {
 
   const unacknowledgedAlerts = alerts.filter(a => !a.acknowledged);
 
-  // Get status display
   const getStatusDisplay = () => {
     switch (patientStatus) {
       case 'critical':
         return {
-          label: t('critical'),
-          color: 'text-red-400',
-          bg: 'bg-red-500/20',
-          border: 'border-red-500',
+          label: l.critical,
+          color: 'var(--color-danger)',
+          bg: 'rgba(255, 59, 48, 0.15)',
+          border: 'var(--color-danger)',
           icon: AlertTriangle,
           pulse: true
         };
       case 'attention':
         return {
-          label: t('needsAttention'),
-          color: 'text-yellow-400',
-          bg: 'bg-yellow-500/20',
-          border: 'border-yellow-500',
+          label: l.needsAttention,
+          color: 'var(--color-warning)',
+          bg: 'rgba(255, 159, 10, 0.15)',
+          border: 'var(--color-warning)',
           icon: Bell,
           pulse: false
         };
       default:
         return {
-          label: t('stable'),
-          color: 'text-green-400',
-          bg: 'bg-green-500/20',
-          border: 'border-green-500',
+          label: l.stable,
+          color: 'var(--color-success)',
+          bg: 'rgba(48, 209, 88, 0.15)',
+          border: 'var(--color-success)',
           icon: Heart,
           pulse: false
         };
@@ -153,15 +212,34 @@ const CaregiverDashboard = () => {
   const status = getStatusDisplay();
   const StatusIcon = status.icon;
 
-  // Get alert icon and color
   const getAlertStyle = (type) => {
     switch (type) {
       case 'emergency':
-        return { icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-500/20' };
+        return { icon: AlertTriangle, color: '#ff3b30', bg: 'rgba(255, 59, 48, 0.15)' };
       case 'pain':
-        return { icon: Activity, color: 'text-orange-500', bg: 'bg-orange-500/20' };
+        return { icon: Activity, color: '#ff9500', bg: 'rgba(255, 149, 0, 0.15)' };
+      case 'help':
+        return { icon: HelpCircle, color: '#ffcc00', bg: 'rgba(255, 204, 0, 0.15)' };
+      case 'okay':
+        return { icon: ThumbsUp, color: '#34c759', bg: 'rgba(52, 199, 89, 0.15)' };
+      case 'thirsty':
+        return { icon: Droplets, color: '#5ac8fa', bg: 'rgba(90, 200, 250, 0.15)' };
+      case 'hungry':
+        return { icon: UtensilsCrossed, color: '#ff9500', bg: 'rgba(255, 149, 0, 0.15)' };
+      case 'bathroom':
+        return { icon: Bath, color: '#007aff', bg: 'rgba(0, 122, 255, 0.15)' };
+      case 'hot':
+        return { icon: Thermometer, color: '#ff3b30', bg: 'rgba(255, 59, 48, 0.15)' };
+      case 'cold':
+        return { icon: Snowflake, color: '#5ac8fa', bg: 'rgba(90, 200, 250, 0.15)' };
+      case 'dizzy':
+        return { icon: Frown, color: '#af52de', bg: 'rgba(175, 82, 222, 0.15)' };
+      case 'tired':
+        return { icon: Moon, color: '#5856d6', bg: 'rgba(88, 86, 214, 0.15)' };
+      case 'anxious':
+        return { icon: Heart, color: '#ff2d55', bg: 'rgba(255, 45, 85, 0.15)' };
       default:
-        return { icon: Bell, color: 'text-cyan-500', bg: 'bg-cyan-500/20' };
+        return { icon: Bell, color: 'var(--color-accent)', bg: 'var(--color-accent-soft)' };
     }
   };
 
@@ -195,83 +273,82 @@ const CaregiverDashboard = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Render refresh icon based on state
-  const renderRefreshIcon = (key, size = 'small') => {
+  const renderRefreshIcon = (key) => {
     const state = refreshState[key];
-    const iconSize = size === 'large' ? 'w-4 h-4' : 'w-4 h-4';
-
     if (state === 'success') {
-      return <CheckCircle className={`${iconSize} text-green-400`} />;
+      return <CheckCircle className="w-4 h-4" style={{ color: 'var(--color-success)' }} />;
     }
-
-    // Use inline style for spinning animation to guarantee it works
-    const spinStyle = state === 'spinning' ? {
-      animation: 'spin 1s linear infinite'
-    } : {};
-
     return (
       <RefreshCw
-        className={`${iconSize} ${state === 'spinning' ? 'text-cyan-400' : 'text-gray-400'}`}
-        style={spinStyle}
+        className={`w-4 h-4 ${state === 'spinning' ? 'animate-spin' : ''}`}
+        style={{ color: state === 'spinning' ? 'var(--color-accent)' : 'var(--color-text-tertiary)' }}
       />
     );
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Heart },
-    { id: 'alerts', label: 'Alerts', icon: Bell, badge: unacknowledgedAlerts.length },
-    { id: 'activity', label: 'Activity', icon: Activity },
+    { id: 'overview', label: l.overview, icon: Heart },
+    { id: 'alerts', label: l.alerts, icon: Bell, badge: unacknowledgedAlerts.length },
+    { id: 'activity', label: l.activity, icon: Activity },
   ];
 
   return (
     <div className="p-4">
       <h2 className="text-2xl font-bold mb-6 text-center gradient-text">
-        {t('caregiverDashboard')}
+        {l.title}
       </h2>
 
       {/* Patient Status Banner */}
-      <div className={`glass rounded-2xl p-4 mb-6 border-2 ${status.border} ${status.pulse ? 'animate-pulse' : ''}`}>
+      <div
+        className="rounded-2xl p-4 mb-6"
+        style={{
+          background: 'var(--color-bg-secondary)',
+          border: `2px solid ${status.border}`,
+          animation: status.pulse ? 'pulse 2s infinite' : 'none'
+        }}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className={`p-3 rounded-xl ${status.bg}`}>
-              <StatusIcon className={`w-8 h-8 ${status.color}`} />
+            <div className="p-3 rounded-xl" style={{ background: status.bg }}>
+              <StatusIcon className="w-8 h-8" style={{ color: status.color }} />
             </div>
             <div>
-              <p className="text-sm text-gray-400">{t('patientStatus')}</p>
-              <p className={`text-2xl font-bold ${status.color}`}>{status.label}</p>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{l.patientStatus}</p>
+              <p className="text-2xl font-bold" style={{ color: status.color }}>{status.label}</p>
             </div>
           </div>
           <div className="flex gap-2">
-            {/* REFRESH ALL BUTTON */}
             <button
               type="button"
               onClick={() => handleRefresh('all')}
               disabled={refreshState.all === 'spinning'}
-              className={`p-3 rounded-xl transition-all active:scale-95
-                ${refreshState.all === 'success' ? 'bg-green-500/30' : 'bg-cyan-500/20 hover:bg-cyan-500/30'}
-                ${refreshState.all === 'spinning' ? 'cursor-wait' : 'cursor-pointer'}
-              `}
+              className="p-3 rounded-xl transition-all active:scale-95"
+              style={{
+                background: refreshState.all === 'success' ? 'rgba(48, 209, 88, 0.2)' : 'var(--color-accent-soft)',
+              }}
               title="Refresh All"
             >
               {refreshState.all === 'success' ? (
-                <CheckCircle className="w-5 h-5 text-green-400" />
+                <CheckCircle className="w-5 h-5" style={{ color: 'var(--color-success)' }} />
               ) : (
-                <RefreshCw className={`w-5 h-5 text-cyan-400 ${refreshState.all === 'spinning' ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 ${refreshState.all === 'spinning' ? 'animate-spin' : ''}`} style={{ color: 'var(--color-accent)' }} />
               )}
             </button>
             <button
               onClick={handlePrint}
-              className="p-3 bg-dark-600 hover:bg-dark-500 rounded-xl transition-all"
+              className="p-3 rounded-xl transition-all"
+              style={{ background: 'var(--color-bg-tertiary)' }}
               title="Print Report"
             >
-              <Printer className="w-5 h-5 text-gray-300" />
+              <Printer className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
             </button>
             <button
               onClick={handleDownload}
-              className="p-3 bg-dark-600 hover:bg-dark-500 rounded-xl transition-all"
+              className="p-3 rounded-xl transition-all"
+              style={{ background: 'var(--color-bg-tertiary)' }}
               title="Download Report"
             >
-              <Download className="w-5 h-5 text-gray-300" />
+              <Download className="w-5 h-5" style={{ color: 'var(--color-text-secondary)' }} />
             </button>
           </div>
         </div>
@@ -281,22 +358,21 @@ const CaregiverDashboard = () => {
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
+          const isActive = selectedTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => { setSelectedTab(tab.id); playSound('click'); }}
-              className={`
-                flex items-center gap-2 px-4 py-2 rounded-xl font-semibold whitespace-nowrap transition-all
-                ${selectedTab === tab.id
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-                  : 'bg-dark-700 text-gray-400 hover:bg-dark-600'
-                }
-              `}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold whitespace-nowrap transition-all"
+              style={{
+                background: isActive ? 'var(--color-accent)' : 'var(--color-bg-tertiary)',
+                color: isActive ? 'white' : 'var(--color-text-secondary)'
+              }}
             >
               <Icon className="w-4 h-4" />
               {tab.label}
               {tab.badge > 0 && (
-                <span className="px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                <span className="px-2 py-0.5 text-white text-xs rounded-full" style={{ background: 'var(--color-danger)' }}>
                   {tab.badge}
                 </span>
               )}
@@ -308,180 +384,164 @@ const CaregiverDashboard = () => {
       {/* Overview Tab */}
       {selectedTab === 'overview' && (
         <div className="space-y-4">
-          {/* Status cards */}
           <div className="grid grid-cols-2 gap-4">
             {/* Pain Level Card */}
-            <div className="glass rounded-2xl p-4">
+            <div className="rounded-2xl p-4" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   <Activity className="w-4 h-4" />
-                  Current Pain
+                  {l.currentPain}
                 </div>
-                {/* PAIN REFRESH BUTTON */}
                 <button
                   type="button"
                   onClick={() => handleRefresh('pain')}
                   disabled={refreshState.pain === 'spinning'}
-                  className={`p-2 rounded-lg transition-all active:scale-95
-                    ${refreshState.pain === 'success' ? 'bg-green-500/20' : 'hover:bg-dark-600'}
-                  `}
-                  title="Refresh"
+                  className="p-2 rounded-lg transition-all active:scale-95"
                 >
                   {renderRefreshIcon('pain')}
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold
-                  ${currentPainLevel <= 3 ? 'bg-green-500' :
-                    currentPainLevel <= 6 ? 'bg-yellow-500' : 'bg-red-500'
-                  } text-white`}>
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold text-white"
+                  style={{
+                    background: currentPainLevel <= 3 ? 'var(--color-success)' :
+                      currentPainLevel <= 6 ? 'var(--color-warning)' : 'var(--color-danger)'
+                  }}
+                >
                   {currentPainLevel}
                 </div>
                 <div>
-                  <p className="text-white font-semibold">
-                    {currentPainLevel <= 3 ? 'Low' :
-                      currentPainLevel <= 6 ? 'Moderate' : 'High'}
+                  <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                    {currentPainLevel <= 3 ? l.low : currentPainLevel <= 6 ? l.moderate : l.high}
                   </p>
-                  <p className="text-gray-500 text-sm">out of 10</p>
+                  <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>{l.outOf10}</p>
                 </div>
               </div>
             </div>
 
             {/* Medications Today Card */}
-            <div className="glass rounded-2xl p-4">
+            <div className="rounded-2xl p-4" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   <Pill className="w-4 h-4" />
-                  Meds Today
+                  {l.medsToday}
                 </div>
-                {/* MEDS REFRESH BUTTON */}
                 <button
                   type="button"
                   onClick={() => handleRefresh('meds')}
                   disabled={refreshState.meds === 'spinning'}
-                  className={`p-2 rounded-lg transition-all active:scale-95
-                    ${refreshState.meds === 'success' ? 'bg-green-500/20' : 'hover:bg-dark-600'}
-                  `}
-                  title="Refresh"
+                  className="p-2 rounded-lg transition-all active:scale-95"
                 >
                   {renderRefreshIcon('meds')}
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-cyan-400">
-                    {medsToday}
-                  </span>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'var(--color-accent-soft)' }}>
+                  <span className="text-2xl font-bold" style={{ color: 'var(--color-accent)' }}>{medsToday}</span>
                 </div>
                 <div>
-                  <p className="text-white font-semibold">Doses Given</p>
-                  <p className="text-gray-500 text-sm">today</p>
+                  <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{l.dosesGiven}</p>
+                  <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>{l.today}</p>
                 </div>
               </div>
             </div>
 
             {/* Visitors Card */}
-            <div className="glass rounded-2xl p-4">
+            <div className="rounded-2xl p-4" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   <Users className="w-4 h-4" />
-                  Current Visitors
+                  {l.currentVisitors}
                 </div>
-                {/* VISITORS REFRESH BUTTON */}
                 <button
                   type="button"
                   onClick={() => handleRefresh('visitors')}
                   disabled={refreshState.visitors === 'spinning'}
-                  className={`p-2 rounded-lg transition-all active:scale-95
-                    ${refreshState.visitors === 'success' ? 'bg-green-500/20' : 'hover:bg-dark-600'}
-                  `}
-                  title="Refresh"
+                  className="p-2 rounded-lg transition-all active:scale-95"
                 >
                   {renderRefreshIcon('visitors')}
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-blue-400">{visitors.length}</span>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.15)' }}>
+                  <span className="text-2xl font-bold" style={{ color: '#3b82f6' }}>{visitors.length}</span>
                 </div>
                 <div>
-                  <p className="text-white font-semibold">
-                    {visitors.length === 0 ? 'No visitors' :
-                      visitors.length === 1 ? '1 visitor' : `${visitors.length} visitors`}
+                  <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                    {visitors.length === 0 ? l.noVisitors :
+                      visitors.length === 1 ? `1 ${l.visitor}` : `${visitors.length} ${l.visitors}`}
                   </p>
-                  <p className="text-gray-500 text-sm">
-                    {visitors[0]?.name || 'Currently alone'}
+                  <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
+                    {visitors[0]?.name || l.currentlyAlone}
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Alerts Card */}
-            <div className="glass rounded-2xl p-4">
+            <div className="rounded-2xl p-4" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   <Bell className="w-4 h-4" />
-                  Unread Alerts
+                  {l.unreadAlerts}
                 </div>
-                {/* ALERTS REFRESH BUTTON */}
                 <button
                   type="button"
                   onClick={() => handleRefresh('alerts')}
                   disabled={refreshState.alerts === 'spinning'}
-                  className={`p-2 rounded-lg transition-all active:scale-95
-                    ${refreshState.alerts === 'success' ? 'bg-green-500/20' : 'hover:bg-dark-600'}
-                  `}
-                  title="Refresh"
+                  className="p-2 rounded-lg transition-all active:scale-95"
                 >
                   {renderRefreshIcon('alerts')}
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center
-                  ${unacknowledgedAlerts.length > 0 ? 'bg-red-500/20 animate-pulse' : 'bg-green-500/20'}`}>
-                  <span className={`text-2xl font-bold ${unacknowledgedAlerts.length > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                <div
+                  className={`w-14 h-14 rounded-full flex items-center justify-center ${unacknowledgedAlerts.length > 0 ? 'animate-pulse' : ''}`}
+                  style={{ background: unacknowledgedAlerts.length > 0 ? 'rgba(255, 59, 48, 0.15)' : 'rgba(48, 209, 88, 0.15)' }}
+                >
+                  <span className="text-2xl font-bold" style={{ color: unacknowledgedAlerts.length > 0 ? 'var(--color-danger)' : 'var(--color-success)' }}>
                     {unacknowledgedAlerts.length}
                   </span>
                 </div>
                 <div>
-                  <p className="text-white font-semibold">
-                    {unacknowledgedAlerts.length === 0 ? 'All clear' : 'Need attention'}
+                  <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>
+                    {unacknowledgedAlerts.length === 0 ? l.allClear : l.needAttention}
                   </p>
-                  <p className="text-gray-500 text-sm">
-                    {alerts.length} total today
+                  <p className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>
+                    {alerts.length} {l.totalToday}
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Pain trend mini chart */}
-          <div className="glass rounded-2xl p-4">
+          {/* Pain trend */}
+          <div className="rounded-2xl p-4" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-300 flex items-center gap-2">
+              <h3 className="font-semibold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
                 <TrendingUp className="w-5 h-5" />
-                Pain Trend
+                {l.painTrend}
               </h3>
-              <span className="text-sm text-gray-500">Last 10 readings</span>
+              <span className="text-sm" style={{ color: 'var(--color-text-tertiary)' }}>{l.last10}</span>
             </div>
 
             {painHistory.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No pain data recorded</p>
+              <p className="text-center py-4" style={{ color: 'var(--color-text-tertiary)' }}>{l.noPainData}</p>
             ) : (
               <div className="flex items-end justify-around h-24 gap-1">
                 {[...painHistory].reverse().slice(0, 10).map((entry, idx) => (
-                  <div
-                    key={idx}
-                    className="flex-1 flex flex-col items-center"
-                  >
+                  <div key={idx} className="flex-1 flex flex-col items-center">
                     <div
-                      className={`w-full rounded-t transition-all ${
-                        entry.level <= 3 ? 'bg-green-500' :
-                        entry.level <= 6 ? 'bg-yellow-500' : 'bg-red-500'
-                      }`}
-                      style={{ height: `${(entry.level / 10) * 100}%`, minHeight: '4px' }}
+                      className="w-full rounded-t transition-all"
+                      style={{
+                        height: `${(entry.level / 10) * 100}%`,
+                        minHeight: '4px',
+                        background: entry.level <= 3 ? 'var(--color-success)' :
+                          entry.level <= 6 ? 'var(--color-warning)' : 'var(--color-danger)'
+                      }}
                     />
-                    <span className="text-xs text-gray-500 mt-1">
+                    <span className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                       {format(new Date(entry.timestamp), 'HH:mm')}
                     </span>
                   </div>
@@ -495,30 +555,30 @@ const CaregiverDashboard = () => {
       {/* Alerts Tab */}
       {selectedTab === 'alerts' && (
         <div className="space-y-4">
-          {/* Alerts Header with Refresh */}
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-300 flex items-center gap-2">
+            <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
               <Bell className="w-5 h-5" />
-              {t('alerts')} ({alerts.length})
+              {l.alerts} ({alerts.length})
             </h3>
-            {/* ALERTS TAB REFRESH BUTTON */}
             <button
               type="button"
               onClick={() => handleRefresh('alerts')}
               disabled={refreshState.alerts === 'spinning'}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all active:scale-95 text-sm font-medium
-                ${refreshState.alerts === 'success' ? 'bg-green-500/20 text-green-400' : 'bg-dark-700 hover:bg-dark-600 text-gray-400'}
-              `}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all active:scale-95 text-sm font-medium"
+              style={{
+                background: refreshState.alerts === 'success' ? 'rgba(48, 209, 88, 0.2)' : 'var(--color-bg-tertiary)',
+                color: refreshState.alerts === 'success' ? 'var(--color-success)' : 'var(--color-text-secondary)'
+              }}
             >
-              {renderRefreshIcon('alerts', 'large')}
-              {refreshState.alerts === 'success' ? 'Updated!' : 'Refresh'}
+              {renderRefreshIcon('alerts')}
+              {refreshState.alerts === 'success' ? l.updated : l.refresh}
             </button>
           </div>
 
           {alerts.length === 0 ? (
-            <div className="glass rounded-2xl p-8 text-center">
-              <Bell className="w-12 h-12 mx-auto text-gray-500 mb-2" />
-              <p className="text-gray-400">{t('noAlerts')}</p>
+            <div className="rounded-2xl p-8 text-center" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+              <Bell className="w-12 h-12 mx-auto mb-2" style={{ color: 'var(--color-text-tertiary)' }} />
+              <p style={{ color: 'var(--color-text-secondary)' }}>{l.noAlerts}</p>
             </div>
           ) : (
             alerts.map((alert) => {
@@ -528,19 +588,22 @@ const CaregiverDashboard = () => {
               return (
                 <div
                   key={alert.id}
-                  className={`glass rounded-2xl p-4 border ${
-                    alert.acknowledged ? 'border-dark-600 opacity-60' : 'border-cyan-500/30'
-                  }`}
+                  className="rounded-2xl p-4"
+                  style={{
+                    background: 'var(--color-bg-secondary)',
+                    border: `1px solid ${alert.acknowledged ? 'var(--color-border)' : 'var(--color-accent)'}`,
+                    opacity: alert.acknowledged ? 0.6 : 1
+                  }}
                 >
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-xl ${style.bg}`}>
-                      <Icon className={`w-6 h-6 ${style.color}`} />
+                    <div className="p-3 rounded-xl" style={{ background: style.bg }}>
+                      <Icon className="w-6 h-6" style={{ color: style.color }} />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-white font-semibold">{alert.message}</p>
-                          <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
+                          <p className="font-semibold" style={{ color: 'var(--color-text-primary)' }}>{alert.message}</p>
+                          <p className="text-sm flex items-center gap-1 mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
                             <Clock className="w-3 h-3" />
                             {format(new Date(alert.timestamp), 'MMM d, h:mm a')}
                           </p>
@@ -549,18 +612,19 @@ const CaregiverDashboard = () => {
                           {!alert.acknowledged && (
                             <button
                               onClick={() => { acknowledgeAlert(alert.id); playSound('success'); }}
-                              className="p-2 bg-green-500/20 hover:bg-green-500/30 rounded-lg transition-all"
-                              title="Acknowledge"
+                              className="p-2 rounded-lg transition-all"
+                              style={{ background: 'rgba(48, 209, 88, 0.15)' }}
+                              title={l.acknowledge}
                             >
-                              <Check className="w-5 h-5 text-green-400" />
+                              <Check className="w-5 h-5" style={{ color: 'var(--color-success)' }} />
                             </button>
                           )}
                           <button
                             onClick={() => deleteAlert(alert.id)}
-                            className="p-2 hover:bg-red-500/20 rounded-lg transition-all"
+                            className="p-2 rounded-lg transition-all hover:bg-red-500/20"
                             title="Delete"
                           >
-                            <Trash2 className="w-5 h-5 text-gray-500 hover:text-red-400" />
+                            <Trash2 className="w-5 h-5" style={{ color: 'var(--color-text-tertiary)' }} />
                           </button>
                         </div>
                       </div>
@@ -576,34 +640,34 @@ const CaregiverDashboard = () => {
       {/* Activity Tab */}
       {selectedTab === 'activity' && (
         <div className="space-y-4">
-          {/* Activity Header with Refresh */}
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-300 flex items-center gap-2">
+            <h3 className="text-lg font-semibold flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
               <Activity className="w-5 h-5" />
-              {t('activityLog')}
+              {l.recentActivity}
             </h3>
-            {/* ACTIVITY REFRESH BUTTON */}
             <button
               type="button"
               onClick={() => handleRefresh('activity')}
               disabled={refreshState.activity === 'spinning'}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all active:scale-95 text-sm font-medium
-                ${refreshState.activity === 'success' ? 'bg-green-500/20 text-green-400' : 'bg-dark-700 hover:bg-dark-600 text-gray-400'}
-              `}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all active:scale-95 text-sm font-medium"
+              style={{
+                background: refreshState.activity === 'success' ? 'rgba(48, 209, 88, 0.2)' : 'var(--color-bg-tertiary)',
+                color: refreshState.activity === 'success' ? 'var(--color-success)' : 'var(--color-text-secondary)'
+              }}
             >
-              {renderRefreshIcon('activity', 'large')}
-              {refreshState.activity === 'success' ? 'Updated!' : 'Refresh'}
+              {renderRefreshIcon('activity')}
+              {refreshState.activity === 'success' ? l.updated : l.refresh}
             </button>
           </div>
 
-          <div className="glass rounded-2xl p-4">
-            <h3 className="font-semibold text-gray-300 mb-4 flex items-center gap-2">
+          <div className="rounded-2xl p-4" style={{ background: 'var(--color-bg-secondary)', border: '1px solid var(--color-border)' }}>
+            <h3 className="font-semibold mb-4 flex items-center gap-2" style={{ color: 'var(--color-text-primary)' }}>
               <FileText className="w-5 h-5" />
-              Recent Activity
+              {l.recentActivity}
             </h3>
 
             {activityLog.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No recent activity</p>
+              <p className="text-center py-4" style={{ color: 'var(--color-text-tertiary)' }}>{l.noActivity}</p>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {activityLog.map((activity) => {
@@ -613,22 +677,23 @@ const CaregiverDashboard = () => {
                   return (
                     <div
                       key={activity.id}
-                      className="flex items-center gap-3 p-3 bg-dark-700 rounded-xl group"
+                      className="flex items-center gap-3 p-3 rounded-xl group"
+                      style={{ background: 'var(--color-bg-tertiary)' }}
                     >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${style.bg}`}>
-                        <Icon className={`w-5 h-5 ${style.color}`} />
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: style.bg }}>
+                        <Icon className="w-5 h-5" style={{ color: style.color }} />
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-300">{activity.message}</p>
-                        <p className="text-xs text-gray-500">
+                        <p style={{ color: 'var(--color-text-primary)' }}>{activity.message}</p>
+                        <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
                           {format(new Date(activity.timestamp), 'h:mm a')}
                         </p>
                       </div>
                       <button
                         onClick={() => deleteActivityLog(activity.id)}
-                        className="p-2 opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition-all"
+                        className="p-2 opacity-0 group-hover:opacity-100 rounded-lg transition-all hover:bg-red-500/20"
                       >
-                        <Trash2 className="w-4 h-4 text-gray-500 hover:text-red-400" />
+                        <Trash2 className="w-4 h-4" style={{ color: 'var(--color-text-tertiary)' }} />
                       </button>
                     </div>
                   );
