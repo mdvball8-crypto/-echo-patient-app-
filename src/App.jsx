@@ -156,6 +156,7 @@ const Header = () => {
   // State for send status
   const [sendStatus, setSendStatus] = useState(null); // null, 'sending', 'success', 'error'
   const [sendError, setSendError] = useState('');
+  const [sentToName, setSentToName] = useState('');
 
   const sendToContact = async (phone, name) => {
     if (!phone) {
@@ -165,13 +166,14 @@ const Header = () => {
 
     setSendStatus('sending');
     setSendError('');
+    setSentToName(name || phone);
 
     const message = language === 'es'
       ? `Mensaje urgente de ECHO: Necesito ayuda. Por favor llama. - ${name || 'Paciente'}`
       : `Urgent ECHO message: I need help. Please call. - ${name || 'Patient'}`;
 
     try {
-      // Try Twilio API first
+      // Call Twilio API
       const response = await fetch('/api/send-sms', {
         method: 'POST',
         headers: {
@@ -186,41 +188,26 @@ const Header = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Success!
+        // Success - SMS was actually sent
         setSendStatus('success');
         setAudioBlob(null);
         // Reset after showing success
         setTimeout(() => {
           setSendStatus(null);
           setShowSafetyMenu(false);
-        }, 2000);
-        return;
+        }, 3000);
       } else {
-        // API call failed, fall back to SMS app
-        console.log('Twilio failed, using SMS fallback:', data.error);
-        throw new Error(data.error || 'SMS service unavailable');
+        // API call failed - show actual error
+        const errorMsg = data.details || data.error || 'Failed to send SMS';
+        console.error('SMS send failed:', errorMsg);
+        setSendStatus('error');
+        setSendError(errorMsg);
       }
     } catch (err) {
-      console.log('Using SMS app fallback:', err.message);
-
-      // Fallback: Download recording and open SMS app
-      if (audioBlob) {
-        const url = URL.createObjectURL(audioBlob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `voice-message-${Date.now()}.webm`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
-
-      // Open SMS app - user must complete the send
-      const smsMessage = language === 'es'
-        ? 'Necesito ayuda. Por favor llama.'
-        : 'I need help. Please call.';
-      window.location.href = `sms:${phone}?body=${encodeURIComponent(smsMessage)}`;
-
-      setSendStatus(null);
-      setAudioBlob(null);
+      // Network or other error
+      console.error('SMS send error:', err);
+      setSendStatus('error');
+      setSendError(err.message || 'Network error - please try again');
     }
   };
 
@@ -414,9 +401,28 @@ const Header = () => {
                       <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(48, 209, 88, 0.2)' }}>
                         <span className="text-2xl">✓</span>
                       </div>
-                      <p style={{ color: 'var(--color-success)' }}>
-                        {language === 'es' ? '¡Mensaje enviado!' : 'Message sent!'}
+                      <p className="font-medium" style={{ color: 'var(--color-success)' }}>
+                        {language === 'es' ? `¡Enviado a ${sentToName}!` : `Sent to ${sentToName}!`}
                       </p>
+                    </div>
+                  ) : sendStatus === 'error' ? (
+                    <div className="text-center py-6">
+                      <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(255, 59, 48, 0.2)' }}>
+                        <span className="text-2xl">✕</span>
+                      </div>
+                      <p className="font-medium mb-2" style={{ color: 'var(--color-danger)' }}>
+                        {language === 'es' ? 'No se pudo enviar' : "Couldn't send"}
+                      </p>
+                      <p className="text-xs mb-4" style={{ color: 'var(--color-text-tertiary)' }}>
+                        {sendError}
+                      </p>
+                      <button
+                        onClick={() => { setSendStatus(null); setSendError(''); }}
+                        className="px-4 py-2 rounded-lg text-sm"
+                        style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
+                      >
+                        {language === 'es' ? 'Intentar de nuevo' : 'Try again'}
+                      </button>
                     </div>
                   ) : (
                     <>
