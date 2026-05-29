@@ -144,6 +144,9 @@ export const AppProvider = ({ children }) => {
   // Alerts for caregiver
   const [alerts, setAlerts] = useState([]);
 
+  // Selected quick buttons (for "Next" button flow)
+  const [selectedQuickButtons, setSelectedQuickButtons] = useState([]);
+
   // Communication/Activity log
   const [activityLog, setActivityLog] = useState([]);
 
@@ -381,6 +384,12 @@ export const AppProvider = ({ children }) => {
     // Pass the actual button type so dashboard can show appropriate icons
     addAlert(buttonType, messages[buttonType]);
 
+    // Track selected button for "Next" flow (avoid duplicates)
+    setSelectedQuickButtons(prev => {
+      if (prev.includes(buttonType)) return prev;
+      return [...prev, buttonType];
+    });
+
     // Update patient status
     if (buttonType === 'emergency') {
       setPatientStatus('critical');
@@ -390,6 +399,11 @@ export const AppProvider = ({ children }) => {
       setPatientStatus('attention');
     }
   }, [addAlert, playSound]);
+
+  // Clear selected quick buttons (after navigating to dashboard)
+  const clearSelectedQuickButtons = useCallback(() => {
+    setSelectedQuickButtons([]);
+  }, []);
 
   // Acknowledge alert
   const acknowledgeAlert = useCallback((id) => {
@@ -614,6 +628,8 @@ export const AppProvider = ({ children }) => {
 
     // Quick buttons
     handleQuickButton,
+    selectedQuickButtons,
+    clearSelectedQuickButtons,
 
     // Reports
     generateReportData,

@@ -40,6 +40,8 @@
     /* Landing Page - hidden when app is active */
     #landing { display: block; }
     #landing.hidden { display: none; }
+    /* Generic hidden class */
+    .hidden { display: none !important; }
 
     /* Navigation */
     nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(51, 65, 85, 0.5); padding: 1rem 2rem; }
@@ -281,6 +283,14 @@
             </ul>
           </div>
           <div class="footer-column">
+            <h4>Legal</h4>
+            <ul>
+              <li><a href="/terms">Terms of Service</a></li>
+              <li><a href="/privacy">Privacy Policy</a></li>
+              <li><a href="/refunds">Refund Policy</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
             <h4>Contact</h4>
             <ul>
               <li><a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a></li>
@@ -289,6 +299,11 @@
           </div>
         </div>
       </div>
+      <div class="footer-disclaimer" style="max-width: 1200px; margin: 0 auto 2rem; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(51, 65, 85, 0.3);">
+        <p style="font-size: 0.75rem; color: var(--slate-400); line-height: 1.6; text-align: center;">
+          <strong style="color: var(--slate-300);">Medical Disclaimer:</strong> ECHO is a personal communication aid designed to help patients express their needs to caregivers. It is not a medical device and does not store protected health information (PHI). ECHO is not HIPAA certified and is not intended for clinical documentation or medical record purposes. Always consult qualified healthcare providers for medical decisions. In case of emergency, call 911.
+        </p>
+      </div>
       <div class="footer-bottom">
         <p>© 2025 ECHO Patient Communication Tool. All rights reserved.</p>
         <p>Made with <span class="footer-heart">❤️</span> in memory of those who inspired it</p>
@@ -296,16 +311,567 @@
     </footer>
   </div>
 
+  <!-- Legal Page Styles -->
+  <style>
+    .legal-page { min-height: 100vh; padding: 6rem 2rem 4rem; }
+    .legal-content { color: var(--slate-300); line-height: 1.8; }
+    .legal-content h2 { font-size: 1.5rem; font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; color: white; }
+    .legal-content h3 { font-size: 1.25rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; color: var(--slate-200); }
+    .legal-content p { margin-bottom: 1rem; }
+    .legal-content ul, .legal-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+    .legal-content li { margin-bottom: 0.5rem; }
+    .legal-content a { color: var(--cyan); text-decoration: none; }
+    .legal-content a:hover { text-decoration: underline; }
+    .legal-content strong { color: white; }
+    .legal-content .highlight-box { background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 1.25rem; margin: 1.5rem 0; }
+    .legal-content .warning-box { background: rgba(255, 59, 48, 0.1); border: 1px solid rgba(255, 59, 48, 0.3); border-radius: 12px; padding: 1.25rem; margin: 1.5rem 0; }
+    .legal-content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+    .legal-content th, .legal-content td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid rgba(51, 65, 85, 0.5); }
+    .legal-content th { color: var(--cyan); font-weight: 600; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .legal-footer { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(51, 65, 85, 0.3); }
+    .legal-footer p { color: var(--slate-400); font-size: 0.875rem; margin-bottom: 0.5rem; }
+  </style>
+
+  <!-- Terms of Service Page -->
+  <div id="legal-terms" class="hidden legal-page">
+    <nav>
+      <div class="nav-container">
+        <a href="/" class="logo">💙 ECHO</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/app" class="btn btn-primary">Open App</a>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+      </div>
+    </nav>
+    <div class="container" style="max-width: 800px; margin: 0 auto;">
+      <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Terms of Service</h1>
+      <p style="color: var(--slate-400); margin-bottom: 2rem;">Last Updated: May 2026</p>
+
+      <div class="legal-content">
+        <h2>1. Agreement to Terms</h2>
+        <p>By accessing or using ECHO ("the Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the Service.</p>
+
+        <h2>2. Description of Service</h2>
+        <p>ECHO is a digital communication aid designed to help patients express their needs, symptoms, and preferences to caregivers when verbal communication is difficult or impossible.</p>
+
+        <h3>2.1 Core Features Include:</h3>
+        <ul>
+          <li>One-tap communication buttons with audio feedback</li>
+          <li>Interactive body mapping for symptom location</li>
+          <li>Pain intensity rating scale (1-10)</li>
+          <li>Text-to-speech accessibility for all features</li>
+          <li>Voice recognition for hands-free communication</li>
+          <li>Medication and visitor logging</li>
+          <li>Caregiver dashboard</li>
+          <li>Kids Mode with child-friendly interface</li>
+          <li>Bilingual support (English/Spanish)</li>
+          <li>Downloadable and printable reports</li>
+        </ul>
+
+        <h2>3. Medical Disclaimer</h2>
+        <div class="warning-box">
+          <p><strong>IMPORTANT: READ CAREFULLY</strong></p>
+          <p><strong>ECHO IS NOT A MEDICAL DEVICE AND DOES NOT PROVIDE MEDICAL ADVICE.</strong></p>
+          <ul>
+            <li>ECHO is a communication aid ONLY</li>
+            <li>ECHO does not diagnose, treat, cure, or prevent any medical condition</li>
+            <li>ECHO is not a substitute for professional medical care</li>
+            <li>ECHO is not HIPAA certified and is not intended for clinical documentation</li>
+            <li>Always consult qualified healthcare providers for medical decisions</li>
+            <li>In case of medical emergency, call 911 immediately</li>
+          </ul>
+        </div>
+        <p>By using ECHO, you acknowledge that:</p>
+        <ul>
+          <li>ECHO facilitates communication but does not provide medical guidance</li>
+          <li>You will not rely solely on ECHO for medical decisions</li>
+          <li>You understand ECHO's limitations as a communication tool</li>
+        </ul>
+
+        <h2>4. Eligibility</h2>
+        <ul>
+          <li>You must be at least 18 years old to create an account</li>
+          <li>Children may use ECHO under adult supervision</li>
+          <li>You must provide accurate account information</li>
+          <li>You are responsible for maintaining account security</li>
+        </ul>
+
+        <h2>5. Subscription and Payment</h2>
+        <h3>5.1 Pricing</h3>
+        <ul>
+          <li><strong>Personal:</strong> $10 USD/month — full access for individual/family use</li>
+          <li><strong>Facility:</strong> Contact us for volume licensing for organizations</li>
+        </ul>
+
+        <h3>5.2 Billing Terms</h3>
+        <ul>
+          <li>Subscriptions are billed monthly on a recurring basis</li>
+          <li>Payment is processed through Stripe</li>
+          <li>All fees are in US dollars</li>
+          <li>You may cancel at any time</li>
+          <li>Access continues until the end of your billing period</li>
+          <li>No refunds for partial months except as required by law</li>
+        </ul>
+
+        <h3>5.3 Free Trial</h3>
+        <ul>
+          <li>Free trial available with no credit card required</li>
+          <li>Trial provides full access to all features</li>
+          <li>Trial converts to paid subscription only with explicit consent</li>
+        </ul>
+
+        <h2>6. User Responsibilities</h2>
+        <p>By using ECHO, you agree to:</p>
+        <ul>
+          <li>Use the Service only for its intended purpose</li>
+          <li>Provide accurate information</li>
+          <li>Not use the Service for any unlawful purpose</li>
+          <li>Not attempt to reverse-engineer, copy, or redistribute the Service</li>
+          <li>Not use automated systems to access the Service</li>
+          <li>Ensure appropriate supervision for patients with cognitive impairments</li>
+          <li>Ensure appropriate supervision for children using the Service</li>
+        </ul>
+
+        <h2>7. Accessibility Features</h2>
+        <p>ECHO includes accessibility features for users with disabilities:</p>
+        <ul>
+          <li>Text-to-speech for all buttons and controls</li>
+          <li>High-contrast visual options</li>
+          <li>Large touch targets</li>
+          <li>Voice recognition input</li>
+          <li>Kids Mode with simplified interface</li>
+        </ul>
+        <p>These features are provided as-is. Users with specific accessibility needs should evaluate whether ECHO meets their requirements.</p>
+
+        <h2>8. Kids Mode</h2>
+        <p>ECHO includes a Kids Mode designed for pediatric patients:</p>
+        <ul>
+          <li>Adult supervision is required</li>
+          <li>Parents/guardians are responsible for appropriate use</li>
+          <li>Content is designed to be age-appropriate</li>
+          <li>All data handling follows the same privacy standards</li>
+        </ul>
+
+        <h2>9. Privacy and Data</h2>
+        <h3>9.1 Data Storage</h3>
+        <ul>
+          <li>Most data is stored locally on your device</li>
+          <li>We do not have access to your medical logs or personal health information</li>
+          <li>You are responsible for device security</li>
+          <li>See our <a href="/privacy">Privacy Policy</a> for complete details</li>
+        </ul>
+
+        <h3>9.2 Data You Control</h3>
+        <ul>
+          <li>Activity logs</li>
+          <li>Medication records</li>
+          <li>Visitor records</li>
+          <li>Document photos</li>
+          <li>Settings and preferences</li>
+        </ul>
+
+        <h3>9.3 No Data Sales</h3>
+        <p>We do not sell, rent, or trade your personal information to third parties for marketing purposes.</p>
+
+        <h2>10. Intellectual Property</h2>
+        <ul>
+          <li>ECHO and its original content are owned by ECHO Patient Tools</li>
+          <li>The Service is protected by copyright, trademark, and other laws</li>
+          <li>You may not copy, modify, or distribute ECHO without permission</li>
+          <li>User-generated content (logs, notes) remains your property</li>
+        </ul>
+
+        <h2>11. Limitation of Liability</h2>
+        <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW:</p>
+        <ul>
+          <li>ECHO is provided "as is" without warranties of any kind</li>
+          <li>We do not warrant that the Service will be uninterrupted or error-free</li>
+          <li>We are not liable for any medical decisions made based on ECHO communications</li>
+          <li>We are not liable for any indirect, incidental, special, or consequential damages</li>
+          <li>Our total liability shall not exceed the amount you paid in the past 12 months</li>
+        </ul>
+
+        <h2>12. Indemnification</h2>
+        <p>You agree to indemnify and hold harmless ECHO Patient Tools from any claims, damages, or expenses arising from:</p>
+        <ul>
+          <li>Your use of the Service</li>
+          <li>Your violation of these Terms</li>
+          <li>Your violation of any third-party rights</li>
+        </ul>
+
+        <h2>13. Modifications to Service</h2>
+        <p>We reserve the right to:</p>
+        <ul>
+          <li>Modify or discontinue features at any time</li>
+          <li>Add new features</li>
+          <li>Update pricing with 30 days notice</li>
+          <li>Change these Terms (continued use constitutes acceptance)</li>
+        </ul>
+
+        <h2>14. Termination</h2>
+        <h3>14.1 By You</h3>
+        <ul>
+          <li>You may cancel your subscription at any time</li>
+          <li>You may delete your account and data at any time</li>
+        </ul>
+
+        <h3>14.2 By Us</h3>
+        <p>We may terminate or suspend your access if you:</p>
+        <ul>
+          <li>Violate these Terms</li>
+          <li>Use the Service in a harmful manner</li>
+          <li>Fail to pay subscription fees</li>
+          <li>Engage in fraudulent activity</li>
+        </ul>
+
+        <h2>15. Governing Law</h2>
+        <p>These Terms are governed by the laws of the State of Georgia, United States, without regard to conflict of law principles.</p>
+
+        <h2>16. Dispute Resolution</h2>
+        <p>Any disputes arising from these Terms or the Service shall be resolved through:</p>
+        <ol>
+          <li>Good faith negotiation</li>
+          <li>Mediation</li>
+          <li>Binding arbitration in accordance with AAA rules</li>
+        </ol>
+        <p>Class action lawsuits are waived to the extent permitted by law.</p>
+
+        <h2>17. Severability</h2>
+        <p>If any provision of these Terms is found unenforceable, the remaining provisions will continue in effect.</p>
+
+        <h2>18. Entire Agreement</h2>
+        <p>These Terms, together with the <a href="/privacy">Privacy Policy</a>, constitute the entire agreement between you and ECHO Patient Tools.</p>
+
+        <h2>19. Contact Information</h2>
+        <p>For questions about these Terms:</p>
+        <ul>
+          <li>Email: <a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a></li>
+          <li>Website: <a href="https://speakecho.co">speakecho.co</a></li>
+          <li>Instagram: <a href="https://instagram.com/echo_patienttool">@echo_patienttool</a></li>
+        </ul>
+
+        <h2>20. Acknowledgment</h2>
+        <div class="highlight-box">
+          <p><strong>BY USING ECHO, YOU ACKNOWLEDGE THAT:</strong></p>
+          <ul>
+            <li>You have read and understood these Terms</li>
+            <li>ECHO is a communication tool, not a medical device</li>
+            <li>ECHO is not HIPAA certified</li>
+            <li>You will not rely solely on ECHO for medical decisions</li>
+            <li>You accept the limitations of liability described above</li>
+            <li>You will supervise children and cognitively impaired patients</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="legal-footer">
+        <p>Last updated: May 2026</p>
+        <p>Questions? Contact us at <a href="mailto:mirza@speakecho.co" style="color: var(--cyan);">mirza@speakecho.co</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Page -->
+  <div id="legal-privacy" class="hidden legal-page">
+    <nav>
+      <div class="nav-container">
+        <a href="/" class="logo">💙 ECHO</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/app" class="btn btn-primary">Open App</a>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+      </div>
+    </nav>
+    <div class="container" style="max-width: 800px; margin: 0 auto;">
+      <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Privacy Policy</h1>
+      <p style="color: var(--slate-400); margin-bottom: 2rem;">Last Updated: May 2026</p>
+
+      <div class="legal-content">
+        <h2>1. Introduction</h2>
+        <p>ECHO Patient Tools ("we," "us," or "our") respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your information when you use ECHO.</p>
+
+        <div class="highlight-box">
+          <p><strong>Key Point: We do NOT sell your data. Most data stays on YOUR device.</strong></p>
+        </div>
+
+        <h2>2. Information We Collect</h2>
+        <h3>2.1 Information You Provide</h3>
+        <table>
+          <tr><th>Type</th><th>Examples</th><th>Stored Where</th></tr>
+          <tr><td>Account Information</td><td>Email, name, payment info</td><td>Our servers (encrypted)</td></tr>
+          <tr><td>Patient Logs</td><td>Symptoms, pain levels, needs</td><td>Your device (local)</td></tr>
+          <tr><td>Medication Records</td><td>Med names, doses, times</td><td>Your device (local)</td></tr>
+          <tr><td>Visitor Records</td><td>Names, times, types</td><td>Your device (local)</td></tr>
+          <tr><td>Documents</td><td>Photos you capture</td><td>Your device (local)</td></tr>
+          <tr><td>Preferences</td><td>Language, sound settings</td><td>Your device (local)</td></tr>
+        </table>
+
+        <h3>2.2 Information Collected Automatically</h3>
+        <table>
+          <tr><th>Type</th><th>Examples</th><th>Purpose</th></tr>
+          <tr><td>Device Information</td><td>Device type, OS, browser</td><td>Service optimization</td></tr>
+          <tr><td>Usage Data</td><td>Features used, session length</td><td>Product improvement</td></tr>
+          <tr><td>Technical Data</td><td>IP address, time zone</td><td>Security, localization</td></tr>
+        </table>
+
+        <h2>3. How We Use Your Information</h2>
+        <ul>
+          <li><strong>Provide the Service:</strong> Enable communication features, process logs</li>
+          <li><strong>Process Payments:</strong> Handle subscription billing through Stripe</li>
+          <li><strong>Improve the Service:</strong> Analyze usage patterns, fix bugs, develop features</li>
+          <li><strong>Communicate:</strong> Send confirmations, important updates, support responses</li>
+          <li><strong>Security:</strong> Detect and prevent fraud or abuse</li>
+        </ul>
+
+        <h2>4. Data Storage</h2>
+        <h3>4.1 Local Storage (Your Device)</h3>
+        <p>Most ECHO data is stored locally on YOUR device:</p>
+        <ul>
+          <li>Activity logs</li>
+          <li>Medication records</li>
+          <li>Visitor records</li>
+          <li>Captured photos</li>
+          <li>Session data</li>
+          <li>Preferences</li>
+        </ul>
+
+        <div class="highlight-box">
+          <p><strong>This means:</strong></p>
+          <ul>
+            <li>Your medical information stays on your device</li>
+            <li>We do not have access to your health-related logs</li>
+            <li>You are responsible for device security</li>
+            <li>Data may be lost if you clear app data or lose device</li>
+          </ul>
+        </div>
+
+        <h3>4.2 Our Servers</h3>
+        <p>We only store:</p>
+        <ul>
+          <li>Account information (email, subscription status)</li>
+          <li>Payment records (through Stripe)</li>
+          <li>Aggregated, anonymized usage statistics</li>
+        </ul>
+
+        <h2>5. Data Sharing</h2>
+        <div class="warning-box">
+          <p><strong>WE DO NOT SELL YOUR DATA</strong></p>
+          <p>We do not sell, rent, or trade your personal information to third parties for marketing purposes. Ever.</p>
+        </div>
+
+        <h3>We May Share Information With:</h3>
+        <table>
+          <tr><th>Provider</th><th>Purpose</th><th>Data Shared</th></tr>
+          <tr><td>Stripe</td><td>Payment processing</td><td>Payment info only</td></tr>
+          <tr><td>Hosting providers</td><td>Service delivery</td><td>Technical data</td></tr>
+          <tr><td>Analytics (anonymized)</td><td>Usage analysis</td><td>No personal info</td></tr>
+        </table>
+
+        <h3>Legal Requirements</h3>
+        <p>We may disclose information if required by:</p>
+        <ul>
+          <li>Law or regulation</li>
+          <li>Legal process</li>
+          <li>Government request</li>
+          <li>Protection of rights or safety</li>
+        </ul>
+
+        <h2>6. Your Rights and Choices</h2>
+        <h3>You Can:</h3>
+        <table>
+          <tr><th>Action</th><th>How</th></tr>
+          <tr><td>Access your data</td><td>View in app, export reports</td></tr>
+          <tr><td>Delete your data</td><td>Use "Clear" function in Dashboard</td></tr>
+          <tr><td>Correct data</td><td>Delete incorrect entries, re-enter</td></tr>
+          <tr><td>Export data</td><td>Download JSON or print reports</td></tr>
+          <tr><td>Disable features</td><td>Turn off voice, camera, sound in settings</td></tr>
+          <tr><td>Cancel subscription</td><td>Email us or through Stripe</td></tr>
+        </table>
+
+        <h3>For California Residents (CCPA):</h3>
+        <ul>
+          <li>Right to know what data we collect</li>
+          <li>Right to delete personal information</li>
+          <li>Right to opt out of data sales (we don't sell)</li>
+          <li>Right to non-discrimination</li>
+        </ul>
+
+        <h3>For EU/UK Residents (GDPR):</h3>
+        <ul>
+          <li>Right to access</li>
+          <li>Right to rectification</li>
+          <li>Right to erasure</li>
+          <li>Right to data portability</li>
+          <li>Right to object</li>
+        </ul>
+        <p>To exercise these rights, contact <a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a></p>
+
+        <h2>7. Children's Privacy</h2>
+        <ul>
+          <li>Account holders must be 18 or older</li>
+          <li>Children may use ECHO under adult supervision</li>
+          <li>We do not knowingly collect personal information from children under 13 without parental consent</li>
+          <li>Parents/guardians can review and delete their child's data</li>
+          <li>Kids Mode is designed for supervised use only</li>
+        </ul>
+
+        <h2>8. Device Permissions</h2>
+        <table>
+          <tr><th>Permission</th><th>Purpose</th><th>Required?</th></tr>
+          <tr><td>Microphone</td><td>Voice recognition</td><td>Optional</td></tr>
+          <tr><td>Camera</td><td>Document photos</td><td>Optional</td></tr>
+          <tr><td>Storage</td><td>Save/export files</td><td>For exports</td></tr>
+          <tr><td>Audio</td><td>Sound feedback, speech</td><td>Optional</td></tr>
+        </table>
+        <p>You can revoke permissions in your device settings at any time.</p>
+
+        <h2>9. Data Security</h2>
+        <p>We implement security measures including:</p>
+        <ul>
+          <li>Encrypted payment processing</li>
+          <li>Secure authentication</li>
+          <li>Regular security reviews</li>
+        </ul>
+        <p>However, no system is 100% secure. You are responsible for:</p>
+        <ul>
+          <li>Device security (passcode, biometrics)</li>
+          <li>Account password security</li>
+          <li>Exported file security</li>
+        </ul>
+
+        <h2>10. Data Retention</h2>
+        <table>
+          <tr><th>Data Type</th><th>Retention</th></tr>
+          <tr><td>Local data</td><td>Until you clear it</td></tr>
+          <tr><td>Account data</td><td>While account is active</td></tr>
+          <tr><td>Payment records</td><td>As required by tax law</td></tr>
+          <tr><td>Support communications</td><td>2 years</td></tr>
+        </table>
+
+        <h2>11. International Users</h2>
+        <p>Our services are based in the United States. If you use ECHO from outside the US, your information may be transferred to and processed in the US.</p>
+
+        <h2>12. Third-Party Links</h2>
+        <p>ECHO may contain links to third-party websites. We are not responsible for their privacy practices.</p>
+
+        <h2>13. Changes to This Policy</h2>
+        <p>We may update this Privacy Policy from time to time. We will notify you of material changes via:</p>
+        <ul>
+          <li>Email notification</li>
+          <li>In-app notice</li>
+          <li>Website announcement</li>
+        </ul>
+        <p>Continued use after changes constitutes acceptance.</p>
+
+        <h2>14. Contact Us</h2>
+        <p>For questions about this Privacy Policy:</p>
+        <ul>
+          <li>Email: <a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a></li>
+          <li>Website: <a href="https://speakecho.co">speakecho.co</a></li>
+          <li>Instagram: <a href="https://instagram.com/echo_patienttool">@echo_patienttool</a></li>
+        </ul>
+        <p><strong>Response Time:</strong> We aim to respond within 30 days.</p>
+
+        <h2>15. Summary</h2>
+        <table>
+          <tr><th>Topic</th><th>Key Point</th></tr>
+          <tr><td>Data Storage</td><td>Most data stored on YOUR device</td></tr>
+          <tr><td>Data Sales</td><td>We do NOT sell your data</td></tr>
+          <tr><td>Medical Data</td><td>We don't access your health logs</td></tr>
+          <tr><td>Security</td><td>You're responsible for device security</td></tr>
+          <tr><td>Children</td><td>Parental supervision required</td></tr>
+          <tr><td>Your Rights</td><td>Access, export, delete anytime</td></tr>
+        </table>
+      </div>
+
+      <div class="legal-footer">
+        <p>Last updated: May 2026</p>
+        <p>Questions? Contact us at <a href="mailto:mirza@speakecho.co" style="color: var(--cyan);">mirza@speakecho.co</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Refund Policy Page -->
+  <div id="legal-refunds" class="hidden legal-page">
+    <nav>
+      <div class="nav-container">
+        <a href="/" class="logo">💙 ECHO</a>
+        <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/app" class="btn btn-primary">Open App</a>
+        </div>
+        <button class="mobile-menu-btn">☰</button>
+      </div>
+    </nav>
+    <div class="container" style="max-width: 800px; margin: 0 auto;">
+      <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem;">Refund Policy</h1>
+      <p style="color: var(--slate-400); margin-bottom: 2rem;">Last Updated: May 2026</p>
+
+      <div class="legal-content">
+        <p>ECHO subscriptions are billed monthly through Stripe.</p>
+
+        <h2>Cancellation</h2>
+        <p>You may cancel your subscription at any time. After cancellation, your access continues until the end of your current billing period. You will not be charged again.</p>
+        <p>To cancel:</p>
+        <ul>
+          <li>Email <a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a>, or</li>
+          <li>Use the cancel link in your Stripe billing portal</li>
+        </ul>
+
+        <h2>Refunds</h2>
+        <p>We do not offer refunds for partial months, except as required by law.</p>
+
+        <h2>Free Trial</h2>
+        <p>ECHO offers a free trial with no credit card required. Your trial converts to a paid subscription only with explicit consent.</p>
+
+        <h2>Medical Hardship</h2>
+        <div class="highlight-box">
+          <p>If you are facing a medical hardship or family caregiving situation that affects your ability to use or pay for ECHO, please email <a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a>. We work with families case by case.</p>
+        </div>
+
+        <h2>Contact</h2>
+        <p>For refund or billing questions:</p>
+        <ul>
+          <li>Email: <a href="mailto:mirza@speakecho.co">mirza@speakecho.co</a></li>
+          <li>Website: <a href="https://speakecho.co">speakecho.co</a></li>
+        </ul>
+      </div>
+
+      <div class="legal-footer">
+        <p>Last updated: May 2026</p>
+        <p>Questions? Contact us at <a href="mailto:mirza@speakecho.co" style="color: var(--cyan);">mirza@speakecho.co</a></p>
+      </div>
+    </div>
+  </div>
+
   <!-- React App Container (hidden until /app is visited) -->
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
 
   <script>
+    // Route handling
+    const path = window.location.pathname;
+
     // Check if we're on /app route - show React app, hide landing
-    if (window.location.pathname.startsWith('/app')) {
+    if (path.startsWith('/app')) {
       document.getElementById('landing').classList.add('hidden');
       document.getElementById('root').classList.add('active');
       document.body.style.background = '#0a0a0f';
+    }
+    // Check for legal pages
+    else if (path === '/terms') {
+      document.getElementById('landing').classList.add('hidden');
+      document.getElementById('legal-terms').classList.remove('hidden');
+    }
+    else if (path === '/privacy') {
+      document.getElementById('landing').classList.add('hidden');
+      document.getElementById('legal-privacy').classList.remove('hidden');
+    }
+    else if (path === '/refunds') {
+      document.getElementById('landing').classList.add('hidden');
+      document.getElementById('legal-refunds').classList.remove('hidden');
     }
 
     // Smooth scroll for landing page

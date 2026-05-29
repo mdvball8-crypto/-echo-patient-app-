@@ -54,6 +54,8 @@ const Header = () => {
   const [showSetup, setShowSetup] = useState(false);
   const [momPhone, setMomPhone] = useState(() => localStorage.getItem('safetyMomPhone') || '');
   const [dadPhone, setDadPhone] = useState(() => localStorage.getItem('safetyDadPhone') || '');
+  const [contact1Name, setContact1Name] = useState(() => localStorage.getItem('safetyContact1Name') || '');
+  const [contact2Name, setContact2Name] = useState(() => localStorage.getItem('safetyContact2Name') || '');
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
@@ -131,6 +133,8 @@ const Header = () => {
   const saveContacts = () => {
     localStorage.setItem('safetyMomPhone', momPhone);
     localStorage.setItem('safetyDadPhone', dadPhone);
+    localStorage.setItem('safetyContact1Name', contact1Name);
+    localStorage.setItem('safetyContact2Name', contact2Name);
     setShowSetup(false);
   };
 
@@ -149,50 +153,82 @@ const Header = () => {
     setAudioBlob(null);
   };
 
+  // State for send status
+  const [sendStatus, setSendStatus] = useState(null); // null, 'sending', 'success', 'error'
+  const [sendError, setSendError] = useState('');
+
   const sendToContact = async (phone, name) => {
     if (!phone) {
       setShowSetup(true);
       return;
     }
 
-    // Try Web Share API first (works on mobile with files)
-    if (navigator.share && audioBlob) {
-      try {
-        const file = new File([audioBlob], `voice-message-${Date.now()}.webm`, { type: 'audio/webm' });
-        await navigator.share({
-          files: [file],
-          title: language === 'es' ? 'Mensaje de voz urgente' : 'Urgent voice message',
-          text: language === 'es' ? 'Por favor escucha este mensaje' : 'Please listen to this message'
-        });
-        setAudioBlob(null);
-        return;
-      } catch (err) {
-        // If sharing fails, fallback to SMS
-        console.log('Share failed, using SMS fallback');
-      }
-    }
+    setSendStatus('sending');
+    setSendError('');
 
-    // Fallback: Save recording and open SMS
-    if (audioBlob) {
-      const url = URL.createObjectURL(audioBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `voice-message-${Date.now()}.webm`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    // Open SMS with message
     const message = language === 'es'
-      ? 'Necesito ayuda. Por favor llama.'
-      : 'I need help. Please call.';
-    window.location.href = `sms:${phone}?body=${encodeURIComponent(message)}`;
-    setAudioBlob(null);
+      ? `Mensaje urgente de ECHO: Necesito ayuda. Por favor llama. - ${name || 'Paciente'}`
+      : `Urgent ECHO message: I need help. Please call. - ${name || 'Patient'}`;
+
+    try {
+      // Try Twilio API first
+      const response = await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: phone,
+          message: message,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Success!
+        setSendStatus('success');
+        setAudioBlob(null);
+        // Reset after showing success
+        setTimeout(() => {
+          setSendStatus(null);
+          setShowSafetyMenu(false);
+        }, 2000);
+        return;
+      } else {
+        // API call failed, fall back to SMS app
+        console.log('Twilio failed, using SMS fallback:', data.error);
+        throw new Error(data.error || 'SMS service unavailable');
+      }
+    } catch (err) {
+      console.log('Using SMS app fallback:', err.message);
+
+      // Fallback: Download recording and open SMS app
+      if (audioBlob) {
+        const url = URL.createObjectURL(audioBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `voice-message-${Date.now()}.webm`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      // Open SMS app - user must complete the send
+      const smsMessage = language === 'es'
+        ? 'Necesito ayuda. Por favor llama.'
+        : 'I need help. Please call.';
+      window.location.href = `sms:${phone}?body=${encodeURIComponent(smsMessage)}`;
+
+      setSendStatus(null);
+      setAudioBlob(null);
+    }
   };
 
   const resetRecording = () => {
     setAudioBlob(null);
     setRecordingTime(0);
+    setSendStatus(null);
+    setSendError('');
   };
 
   const handleKidsModeToggle = () => {
@@ -255,17 +291,30 @@ const Header = () => {
       <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo - Clickable for hidden safety menu */}
         <div className="flex items-center gap-2 relative" ref={safetyMenuRef}>
-          <button
-            onClick={handleLogoClick}
-            className="w-10 h-10 rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
-            style={{
-              background: 'var(--color-accent)',
-              boxShadow: '0 4px 12px var(--color-shadow-elevated)'
-            }}
-            aria-label="Menu"
-          >
-            <Heart className="w-6 h-6 text-white" />
-          </button>
+          <div className="flex flex-col items-center">
+            <button
+              onClick={handleLogoClick}
+              className="w-10 h-10 rounded-xl flex items-center justify-center hover:scale-105 transition-transform relative"
+              style={{
+                background: 'var(--color-accent)',
+                boxShadow: '0 4px 12px var(--color-shadow-elevated)'
+              }}
+              aria-label="Emergency help menu"
+            >
+              <Heart className="w-6 h-6 text-white" />
+              {/* Subtle pulsing dot indicator */}
+              <span
+                className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse"
+                style={{ background: 'var(--color-danger)', border: '2px solid var(--color-bg-primary)' }}
+              />
+            </button>
+            <span
+              className="text-[10px] mt-0.5 whitespace-nowrap"
+              style={{ color: 'var(--color-text-tertiary)' }}
+            >
+              {language === 'es' ? 'Pide ayuda' : 'Tap for help'}
+            </span>
+          </div>
           <span className="text-2xl font-semibold text-headline gradient-text">ECHO</span>
 
           {/* Hidden Safety Menu - appears as a normal dropdown */}
@@ -305,6 +354,13 @@ const Header = () => {
                         {language === 'es' ? 'Contacto 1' : 'Contact 1'}
                       </label>
                       <input
+                        type="text"
+                        value={contact1Name}
+                        onChange={(e) => setContact1Name(e.target.value)}
+                        placeholder={language === 'es' ? 'Nombre' : 'Name'}
+                        className="input-field text-sm mb-2"
+                      />
+                      <input
                         type="tel"
                         value={momPhone}
                         onChange={(e) => setMomPhone(e.target.value)}
@@ -316,6 +372,13 @@ const Header = () => {
                       <label className="text-xs block mb-1" style={{ color: 'var(--color-text-tertiary)' }}>
                         {language === 'es' ? 'Contacto 2' : 'Contact 2'}
                       </label>
+                      <input
+                        type="text"
+                        value={contact2Name}
+                        onChange={(e) => setContact2Name(e.target.value)}
+                        placeholder={language === 'es' ? 'Nombre' : 'Name'}
+                        className="input-field text-sm mb-2"
+                      />
                       <input
                         type="tel"
                         value={dadPhone}
@@ -339,39 +402,76 @@ const Header = () => {
               ) : audioBlob && !isRecording ? (
                 /* Send options after recording */
                 <div className="p-3">
-                  <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)' }}>
-                    {language === 'es' ? 'Enviar grabación a:' : 'Send recording to:'}
-                  </p>
-                  <div className="space-y-2">
-                    <button
-                      onClick={sendTo911}
-                      className="w-full py-3 px-4 rounded-lg text-sm transition-all text-left"
-                      style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
-                    >
-                      {language === 'es' ? 'Servicios de emergencia' : 'Emergency services'}
-                    </button>
-                    <button
-                      onClick={() => sendToContact(momPhone, 'Mom')}
-                      className="w-full py-3 px-4 rounded-lg text-sm transition-all text-left"
-                      style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
-                    >
-                      {language === 'es' ? 'Contacto 1 (Mamá)' : 'Contact 1 (Mom)'}
-                    </button>
-                    <button
-                      onClick={() => sendToContact(dadPhone, 'Dad')}
-                      className="w-full py-3 px-4 rounded-lg text-sm transition-all text-left"
-                      style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
-                    >
-                      {language === 'es' ? 'Contacto 2 (Papá)' : 'Contact 2 (Dad)'}
-                    </button>
-                    <button
-                      onClick={resetRecording}
-                      className="w-full py-2 px-4 rounded-lg text-xs transition-all"
-                      style={{ background: 'var(--color-border)', color: 'var(--color-text-tertiary)' }}
-                    >
-                      {language === 'es' ? 'Cancelar' : 'Cancel'}
-                    </button>
-                  </div>
+                  {sendStatus === 'sending' ? (
+                    <div className="text-center py-6">
+                      <div className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full mx-auto mb-3" style={{ borderColor: 'var(--color-accent)', borderTopColor: 'transparent' }}></div>
+                      <p style={{ color: 'var(--color-text-secondary)' }}>
+                        {language === 'es' ? 'Enviando...' : 'Sending...'}
+                      </p>
+                    </div>
+                  ) : sendStatus === 'success' ? (
+                    <div className="text-center py-6">
+                      <div className="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style={{ background: 'rgba(48, 209, 88, 0.2)' }}>
+                        <span className="text-2xl">✓</span>
+                      </div>
+                      <p style={{ color: 'var(--color-success)' }}>
+                        {language === 'es' ? '¡Mensaje enviado!' : 'Message sent!'}
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-xs mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+                        {language === 'es' ? 'Enviar grabación a:' : 'Send recording to:'}
+                      </p>
+                      <div className="space-y-2">
+                        <button
+                          onClick={sendTo911}
+                          className="w-full py-4 px-4 rounded-lg text-base font-medium transition-all text-left flex items-center gap-3"
+                          style={{ background: 'rgba(255, 59, 48, 0.15)', color: 'var(--color-danger)' }}
+                        >
+                          <span className="text-xl">🚨</span>
+                          {language === 'es' ? 'Servicios de emergencia' : 'Emergency services'}
+                        </button>
+                        {momPhone && (
+                          <button
+                            onClick={() => sendToContact(momPhone, contact1Name || 'Contact 1')}
+                            className="w-full py-4 px-4 rounded-lg text-base transition-all text-left flex items-center gap-3"
+                            style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
+                          >
+                            <span className="text-xl">📱</span>
+                            {contact1Name || momPhone}
+                          </button>
+                        )}
+                        {dadPhone && (
+                          <button
+                            onClick={() => sendToContact(dadPhone, contact2Name || 'Contact 2')}
+                            className="w-full py-4 px-4 rounded-lg text-base transition-all text-left flex items-center gap-3"
+                            style={{ background: 'var(--color-bg-tertiary)', color: 'var(--color-text-primary)' }}
+                          >
+                            <span className="text-xl">📱</span>
+                            {contact2Name || dadPhone}
+                          </button>
+                        )}
+                        {!momPhone && !dadPhone && (
+                          <button
+                            onClick={() => setShowSetup(true)}
+                            className="w-full py-4 px-4 rounded-lg text-base transition-all text-left flex items-center gap-3"
+                            style={{ background: 'var(--color-accent-soft)', color: 'var(--color-accent)' }}
+                          >
+                            <span className="text-xl">➕</span>
+                            {language === 'es' ? 'Agregar contacto' : 'Add a contact'}
+                          </button>
+                        )}
+                        <button
+                          onClick={resetRecording}
+                          className="w-full py-2 px-4 rounded-lg text-xs transition-all mt-2"
+                          style={{ background: 'var(--color-border)', color: 'var(--color-text-tertiary)' }}
+                        >
+                          {language === 'es' ? 'Cancelar' : 'Cancel'}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ) : (
                 /* Recording controls */
@@ -571,7 +671,7 @@ const MainContent = ({ currentScreen, setCurrentScreen }) => {
 
   switch (currentScreen) {
     case 'home':
-      return <HomeScreen />;
+      return <HomeScreen onNavigate={setCurrentScreen} />;
     case 'body':
       return <BodyMapFlow onComplete={() => setCurrentScreen('home')} />;
     case 'voice':

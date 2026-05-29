@@ -1,9 +1,9 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
-import { AlertTriangle, Activity, Bell, Check, Droplets, UtensilsCrossed, Bath, Thermometer, Snowflake, RotateCcw, Moon, Heart } from 'lucide-react';
+import { AlertTriangle, Activity, Bell, Check, Droplets, UtensilsCrossed, Bath, Thermometer, Snowflake, RotateCcw, Moon, Heart, Send } from 'lucide-react';
 
-const HomeScreen = () => {
-  const { t, handleQuickButton, playSound, speak } = useApp();
+const HomeScreen = ({ onNavigate }) => {
+  const { t, handleQuickButton, playSound, speak, selectedQuickButtons, clearSelectedQuickButtons } = useApp();
 
   const buttons = [
     {
@@ -117,13 +117,25 @@ const HomeScreen = () => {
     handleQuickButton(button.id);
   };
 
+  const handleNextClick = () => {
+    playSound('success');
+    speak(t('screenDashboard'));
+    if (onNavigate) {
+      onNavigate('dashboard');
+    }
+    // Don't clear selections yet - let dashboard show them
+  };
+
+  const hasSelections = selectedQuickButtons && selectedQuickButtons.length > 0;
+
   return (
-    <div className="p-4 space-y-3">
+    <div className={`p-4 space-y-3 ${hasSelections ? 'pb-24' : ''}`}>
       {buttons.map((button) => {
         const Icon = button.icon;
         const isEmergency = button.size === 'xl';
         const label = t(button.labelKey);
         const desc = t(button.descKey);
+        const isSelected = selectedQuickButtons && selectedQuickButtons.includes(button.id);
 
         return (
           <button
@@ -136,12 +148,20 @@ const HomeScreen = () => {
               shadow-lg hover:shadow-xl
               ${isEmergency ? 'py-6' : 'py-4'}
               ${button.pulse ? 'emergency-pulse' : ''}
+              ${isSelected ? 'ring-4 ring-white/50' : ''}
               relative overflow-hidden
             `}
             aria-label={label}
           >
             {/* Shine effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12" />
+
+            {/* Selected checkmark */}
+            {isSelected && (
+              <div className="absolute top-2 right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-green-600" />
+              </div>
+            )}
 
             <div className="relative flex items-center justify-between px-6">
               <div className="flex items-center gap-4">
@@ -162,6 +182,31 @@ const HomeScreen = () => {
           </button>
         );
       })}
+
+      {/* Sticky "Next" button - appears after first tap */}
+      {hasSelections && (
+        <div
+          className="fixed bottom-0 left-0 right-0 p-4 z-40"
+          style={{
+            background: 'linear-gradient(to top, var(--color-bg-primary) 80%, transparent)',
+            paddingTop: '2rem'
+          }}
+        >
+          <button
+            onClick={handleNextClick}
+            className="w-full max-w-4xl mx-auto py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl"
+            style={{
+              background: 'var(--color-accent)',
+              color: 'white'
+            }}
+          >
+            <span className="text-lg font-bold">
+              {t('next')} ({selectedQuickButtons.length})
+            </span>
+            <Send className="w-5 h-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };
