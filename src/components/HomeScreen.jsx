@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
-import { AlertTriangle, Activity, Bell, Check, Droplets, UtensilsCrossed, Bath, Thermometer, Snowflake, RotateCcw, Moon, Heart, Send } from 'lucide-react';
+import { AlertTriangle, Activity, Bell, Check, Droplets, UtensilsCrossed, Bath, Thermometer, Snowflake, RotateCcw, Moon, Heart, Send, X } from 'lucide-react';
 
 const HomeScreen = ({ onNavigate }) => {
   const { t, handleQuickButton, playSound, speak, selectedQuickButtons, clearSelectedQuickButtons } = useApp();
@@ -123,7 +123,13 @@ const HomeScreen = ({ onNavigate }) => {
     if (onNavigate) {
       onNavigate('dashboard');
     }
-    // Don't clear selections yet - let dashboard show them
+    // Clear selections after navigating to dashboard
+    clearSelectedQuickButtons();
+  };
+
+  const handleClearClick = () => {
+    playSound('click');
+    clearSelectedQuickButtons();
   };
 
   const hasSelections = selectedQuickButtons && selectedQuickButtons.length > 0;
@@ -192,19 +198,35 @@ const HomeScreen = ({ onNavigate }) => {
             paddingTop: '2rem'
           }}
         >
-          <button
-            onClick={handleNextClick}
-            className="w-full max-w-4xl mx-auto py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl"
-            style={{
-              background: 'var(--color-accent)',
-              color: 'white'
-            }}
-          >
-            <span className="text-lg font-bold">
-              {t('next')} ({selectedQuickButtons.length})
-            </span>
-            <Send className="w-5 h-5" />
-          </button>
+          <div className="w-full max-w-4xl mx-auto flex items-center gap-2">
+            {/* Clear button */}
+            <button
+              onClick={handleClearClick}
+              className="p-4 rounded-2xl flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95"
+              style={{
+                background: 'var(--color-bg-tertiary)',
+                color: 'var(--color-text-secondary)'
+              }}
+              aria-label={t('cancel')}
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Next button */}
+            <button
+              onClick={handleNextClick}
+              className="flex-1 py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transform transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl"
+              style={{
+                background: 'var(--color-accent)',
+                color: 'white'
+              }}
+            >
+              <span className="text-lg font-bold">
+                {t('next')} ({selectedQuickButtons.length})
+              </span>
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
     </div>
